@@ -4,20 +4,34 @@
   <meta charset="UTF-8" />
   <title>Lunch Feedback Survey</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #1e1e2f;
-      color: #eee;
+      background: url('YOUR_BACKGROUND_IMAGE_URL_HERE') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
       padding: 2rem;
-      max-width: 600px;
-      margin: auto;
+    }
+
+    form {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(255,0,0,0.3);
     }
 
     h2 {
       text-align: center;
-      color: #ffa94d;
+      color: #ff4d4d;
     }
 
     .page {
@@ -40,6 +54,7 @@
 
     .emoji-bar {
       display: flex;
+      justify-content: center;
       gap: 0.5rem;
       padding: 0.5rem 0;
     }
@@ -64,9 +79,9 @@
     input[type="date"], textarea, button {
       width: 100%;
       padding: 10px;
-      border: 1px solid #444;
-      background-color: #2a2a3d;
-      color: #eee;
+      border: 1px solid #ff4d4d;
+      background-color: #1a1a1a;
+      color: #fff;
       border-radius: 8px;
       font-size: 1rem;
       margin-top: 0.5rem;
@@ -78,7 +93,7 @@
     }
 
     button {
-      background: #ffa94d;
+      background: #ff4d4d;
       color: white;
       border: none;
       font-weight: bold;
@@ -87,15 +102,33 @@
     }
 
     button:hover {
-      background: #e67700;
+      background: #cc0000;
+    }
+
+    #popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #000;
+      padding: 2rem;
+      border: 2px solid #ff4d4d;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1.2rem;
+      text-align: center;
+      z-index: 1000;
     }
   </style>
 </head>
 <body>
 
-<h2>✨ Lunch Feedback Survey ✨</h2>
+<div id="popup">🎉 Thank you! Your response has been recorded.</div>
 
 <form id="surveyForm">
+  <h2>✨ Lunch Feedback Survey ✨</h2>
+
   <!-- Page 1 -->
   <div class="page active" id="page1">
     <label for="lunchDate">📅 What day of lunch are you reviewing?</label><br>
@@ -105,10 +138,10 @@
 
   <!-- Page 2 -->
   <div class="page" id="page2">
-    <p>🌭 Rate the Hotdog:</p>
+    <p>😋 Taste:</p>
     <div class="emoji-bar" data-key="hotdog" data-src="hotdog.png"></div>
 
-    <p>🔥 Temperature Rating:</p>
+    <p>🔥 Temperature:</p>
     <div class="emoji-bar" data-key="temperature" data-src="fire.png"></div>
 
     <p>😊 Overall Experience:</p>
@@ -155,7 +188,6 @@
       });
       div.appendChild(img);
     }
-    // Add half point hover support
     div.addEventListener("mousemove", e => {
       const rect = div.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -207,11 +239,37 @@
     })
     .then(res => res.text())
     .then(() => {
-      alert("🎉 Thank you! Your response has been recorded.");
-      location.reload();
+      document.getElementById("popup").style.display = "block";
+      confetti();
+      setTimeout(() => location.reload(), 3000);
     })
     .catch(err => alert("Submission failed: " + err));
   });
+
+  function confetti() {
+    const duration = 2 * 1000;
+    const end = Date.now() + duration;
+    (function frame() {
+      confettiEffect();
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+  }
+
+  function confettiEffect() {
+    const colors = ["#ff4d4d", "#ff9999", "#ff1a1a"];
+    const particle = document.createElement("div");
+    particle.style.position = "fixed";
+    particle.style.zIndex = 999;
+    particle.style.width = "10px";
+    particle.style.height = "10px";
+    particle.style.borderRadius = "50%";
+    particle.style.background = colors[Math.floor(Math.random()*colors.length)];
+    particle.style.top = Math.random() * window.innerHeight + "px";
+    particle.style.left = Math.random() * window.innerWidth + "px";
+    particle.style.opacity = 1;
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 1000);
+  }
 </script>
 
 </body>
