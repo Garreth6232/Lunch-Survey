@@ -1,314 +1,183 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Lunch Feedback Survey</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: url('YOUR_BACKGROUND_IMAGE_URL_HERE') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 2rem;
+  }
+
+  form {
+    background: rgba(0, 0, 0, 0.85);
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 10px 25px rgba(255, 0, 0, 0.5);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  h2 {
+    text-align: center;
+    color: #ff1a1a;
+  }
+
+  .page {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  label, p {
+    font-size: 1.1rem;
+    margin-top: 1rem;
+  }
+
+  .emoji-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+
+  .emoji-bar img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    transform: scale(1);
+    filter: grayscale(100%) brightness(60%);
+    object-fit: contain;
+  }
+
+  .emoji-bar img.full {
+    filter: grayscale(0%) brightness(100%);
+  }
+
+  .emoji-bar img.half {
+    filter: grayscale(0%) brightness(85%);
+    clip-path: inset(0 50% 0 0);
+  }
+
+  .emoji-bar img:hover {
+    transform: scale(1.15);
+  }
+
+  .emoji-bar[data-key="hotdog"] {
+    justify-content: center;
+  }
+  .emoji-bar[data-key="hotdog"]::before,
+  .emoji-bar[data-key="temperature"]::before,
+  .emoji-bar[data-key="flowers"]::before {
+    content: "";
+    display: none;
+  }
+
+  .emoji-bar[data-key="hotdog"] img {
+    content: url("https://garreth6232.github.io/Lunch-Survey/assets/hotdog.png");
+  }
+
+  .emoji-bar[data-key="temperature"] img {
+    content: url("https://garreth6232.github.io/Lunch-Survey/assets/fire.png");
+  }
+
+  .emoji-bar[data-key="flowers"] img {
+    content: url("https://garreth6232.github.io/Lunch-Survey/assets/flower.png");
+  }
+
+  input[type="date"], textarea, button {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ff1a1a;
+    background-color: #1a1a1a;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  textarea {
+    height: 100px;
+    resize: vertical;
+  }
+
+  button {
+    background: #ff1a1a;
+    color: white;
+    border: none;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #cc0000;
+  }
+
+  #popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #000;
+    padding: 2rem;
+    border: 2px solid #ff1a1a;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1.2rem;
+    text-align: center;
+    z-index: 1000;
+  }
+
+  @media (max-width: 600px) {
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: url('YOUR_BACKGROUND_IMAGE_URL_HERE') no-repeat center center fixed;
-      background-size: cover;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 2rem;
+      padding: 1rem;
     }
 
     form {
-      background: rgba(0, 0, 0, 0.85);
-      padding: 2rem;
-      border-radius: 12px;
-      max-width: 600px;
-      width: 100%;
-      box-shadow: 0 10px 25px rgba(255,0,0,0.3);
-      transition: opacity 0.4s ease, transform 0.4s ease;
-    }
-
-    h2 {
-      text-align: center;
-      color: #ff4d4d;
-    }
-
-    .page {
-      display: none;
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    .active {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    label, p {
-      font-size: 1.1rem;
-      margin-top: 1rem;
-    }
-
-    .emoji-bar {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0;
+      padding: 1.5rem;
     }
 
     .emoji-bar img {
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      transition: transform 0.2s ease, filter 0.2s ease;
-      transform: scale(1);
-      filter: grayscale(100%) brightness(60%);
+      width: 30px;
+      height: 30px;
     }
-
-    .emoji-bar img.full {
-      filter: grayscale(0%) brightness(100%);
-    }
-
-    .emoji-bar img.half {
-      filter: grayscale(0%) brightness(85%);
-      clip-path: inset(0 50% 0 0);
-    }
-
-    .emoji-bar img:hover {
-      transform: scale(1.15);
-    }
-
-    input[type="date"], textarea, button {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ff4d4d;
-      background-color: #1a1a1a;
-      color: #fff;
-      border-radius: 8px;
-      font-size: 1rem;
-      margin-top: 0.5rem;
-    }
-
-    textarea {
-      height: 100px;
-      resize: vertical;
-    }
-
-    button {
-      background: #ff4d4d;
-      color: white;
-      border: none;
-      font-weight: bold;
-      margin-top: 1.5rem;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #cc0000;
-    }
-
-    #popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #000;
-      padding: 2rem;
-      border: 2px solid #ff4d4d;
-      border-radius: 10px;
-      color: #fff;
-      font-size: 1.2rem;
-      text-align: center;
-      z-index: 1000;
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 1rem;
-      }
-
-      form {
-        padding: 1.5rem;
-      }
-
-      .emoji-bar img {
-        width: 30px;
-        height: 30px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-<div id="popup">🎉 Thank you! Your response has been recorded.</div>
-
-<form id="surveyForm">
-  <h2>✨ Lunch Feedback Survey ✨</h2>
-
-  <!-- Page 1 -->
-  <div class="page active" id="page1">
-    <label for="lunchDate">📅 What day of lunch are you reviewing?</label><br>
-    <input type="date" id="lunchDate" required />
-    <button type="button" onclick="nextPage()">Continue ➡️</button>
-  </div>
-
-  <!-- Page 2 -->
-  <div class="page" id="page2">
-    <p>😋 Taste:</p>
-    <div class="emoji-bar" data-key="hotdog" data-src="assets/hotdog.png"></div>
-
-    <p>🔥 Temperature:</p>
-    <div class="emoji-bar" data-key="temperature" data-src="assets/fire.png"></div>
-
-    <p>😊 Overall Experience:</p>
-    <div class="emoji-bar" data-key="overall">
-      <img src="https://garreth6232.github.io/Lunch-Survey/assets/frown1.png" data-value="1">
-      <img src="https://garreth6232.github.io/Lunch-Survey/assets/frown2.png" data-value="2">
-      <img src="https://garreth6232.github.io/Lunch-Survey/assets/neutral.png" data-value="3">
-      <img src="https://garreth6232.github.io/Lunch-Survey/assets/smile1.png" data-value="4">
-      <img src="https://garreth6232.github.io/Lunch-Survey/assets/smile2.png" data-value="5">
-    </div>
-
-    <p>🌸 Give Flowers to the Chefs:</p>
-    <div class="emoji-bar" data-key="flowers" data-src="assets/flower.png"></div>
-
-    <button type="button" onclick="nextPage()">Continue ➡️</button>
-  </div>
-
-  <!-- Page 3 -->
-  <div class="page" id="page3">
-    <label>Memorable part of your meal:</label>
-    <textarea id="memorable"></textarea>
-
-    <label>Anything that didn't meet your expectations?</label>
-    <textarea id="disappointing"></textarea>
-
-    <button type="submit">Submit ✉️</button>
-  </div>
-</form>
+  }
+</style>
 
 <script>
-  let currentPage = 1;
-  const responses = { hotdog: 0, temperature: 0, overall: 0, flowers: 0 };
+  // force calendar picker for mobile compatibility
+  window.addEventListener("DOMContentLoaded", () => {
+    const dateInput = document.querySelector("input[type='date']");
+    if (!dateInput.showPicker && !/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      dateInput.type = 'text';
+      dateInput.placeholder = 'Select a date (Tue, Wed, Thurs)';
+    }
 
-  function nextPage() {
-    document.getElementById(`page${currentPage}`).classList.remove("active");
-    currentPage++;
-    document.getElementById(`page${currentPage}`).classList.add("active");
-  }
-
-  function createEmojiBar(div) {
-    const key = div.dataset.key;
-    const imgs = div.querySelectorAll("img");
-
-    if (imgs.length > 0) {
-      // For pre-rendered images like 'overall'
-      imgs.forEach((img, index) => {
-        img.addEventListener("click", () => {
-          responses[key] = index + 1;
-          updateEmojiBar(div, index + 1);
-        });
-      });
-    } else {
-      const src = div.dataset.src;
-      for (let i = 1; i <= 5; i++) {
+    // Initialize emoji bars
+    const ratings = ["hotdog", "temperature", "flowers"];
+    ratings.forEach(key => {
+      const container = document.querySelector(`.emoji-bar[data-key="${key}"]`);
+      for (let i = 0; i < 5; i++) {
         const img = document.createElement("img");
-        img.src = src;
-        img.dataset.value = i;
-        img.addEventListener("click", () => {
-          responses[key] = i;
-          updateEmojiBar(div, i);
-        });
-        div.appendChild(img);
-      }
-    }
-
-    div.addEventListener("mousemove", e => {
-      const rect = div.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const percent = x / rect.width;
-      const value = Math.round(percent * 10) / 2;
-      updateEmojiBar(div, value);
-    });
-
-    div.addEventListener("mouseleave", () => {
-      updateEmojiBar(div, responses[key]);
-    });
-  }
-
-  function updateEmojiBar(bar, value) {
-    const imgs = [...bar.querySelectorAll('img')];
-    imgs.forEach((img, i) => {
-      img.classList.remove("full", "half");
-      if (i + 1 <= value) {
-        img.classList.add("full");
-      } else if (i + 0.5 === value) {
-        img.classList.add("half");
+        img.dataset.value = i + 1;
+        container.appendChild(img);
       }
     });
-  }
-
-  document.querySelectorAll(".emoji-bar").forEach(createEmojiBar);
-
-  document.getElementById("surveyForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const lunchDate = document.getElementById("lunchDate").value;
-    const day = new Date(lunchDate).toLocaleDateString("en-US", { weekday: 'long' });
-
-    if (!['Tuesday', 'Wednesday', 'Thursday'].includes(day)) {
-      alert("Please select a Tuesday, Wednesday, or Thursday.");
-      return;
-    }
-
-    const payload = {
-      day: lunchDate,
-      hotdog: responses.hotdog,
-      temperature: responses.temperature,
-      overall: responses.overall,
-      flowers: responses.flowers,
-      memorable: document.getElementById("memorable").value.trim(),
-      disappointing: document.getElementById("disappointing").value.trim()
-    };
-
-    fetch("YOUR_WEB_APP_URL_HERE", {
-      method: "POST",
-      body: JSON.stringify(payload),
-      headers: { "Content-Type": "application/json" }
-    }).then(res => res.text()).then(() => {
-      document.getElementById("popup").style.display = "block";
-      confetti();
-      setTimeout(() => location.reload(), 3000);
-    }).catch(err => alert("Submission failed: " + err));
   });
-
-  function confetti() {
-    const duration = 2000;
-    const end = Date.now() + duration;
-    (function frame() {
-      confettiEffect();
-      if (Date.now() < end) requestAnimationFrame(frame);
-    })();
-  }
-
-  function confettiEffect() {
-    const colors = ["#ff4d4d", "#ff9999", "#ff1a1a"];
-    const particle = document.createElement("div");
-    particle.style.position = "fixed";
-    particle.style.zIndex = 999;
-    particle.style.width = "10px";
-    particle.style.height = "10px";
-    particle.style.borderRadius = "50%";
-    particle.style.background = colors[Math.floor(Math.random()*colors.length)];
-    particle.style.top = Math.random() * window.innerHeight + "px";
-    particle.style.left = Math.random() * window.innerWidth + "px";
-    particle.style.opacity = 1;
-    document.body.appendChild(particle);
-    setTimeout(() => particle.remove(), 1000);
-  }
 </script>
-
-</body>
-</html>
