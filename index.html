@@ -1,7 +1,7 @@
 <style>
   body {
     font-family: 'Calibri', 'Times New Roman', serif;
-    background: url('YOUR_BACKGROUND_IMAGE_URL_HERE') no-repeat center center fixed;
+    background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)), url('https://raw.githubusercontent.com/Garreth6232/Lunch-Survey/main/assets/Moda-678x381.jpg') no-repeat center center fixed;
     background-size: cover;
     color: #fff;
     background-color: #000;
@@ -159,10 +159,11 @@
       conf.style.left = Math.random() * 100 + "%";
       conf.style.top = "-10%";
       conf.style.fontSize = "2rem";
-      conf.style.animation = "fall 2s ease-out forwards";
+      conf.style.animation = "fall 2.5s ease-out forwards";
+      conf.style.pointerEvents = "none";
       document.body.appendChild(conf);
 
-      setTimeout(() => conf.remove(), 2000);
+      setTimeout(() => conf.remove(), 3000);
     }
   }
 </script>
