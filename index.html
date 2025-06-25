@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lunch Feedback</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
+    .page { display: none; }
+    .active { display: block; }
+    .emoji-bar span {
+      font-size: 2rem;
+      cursor: pointer;
+      filter: grayscale(100%);
+      transition: 0.2s;
+    }
+    .emoji-bar span.full {
+      filter: grayscale(0%);
+    }
+    button { margin-top: 1rem; padding: 10px 20px; font-size: 1rem; }
+    textarea { width: 100%; height: 100px; margin-top: 0.5rem; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: grayscale(1); }
+  </style>
+</head>
+<body>
+
+<h2>Lunch Feedback Survey</h2>
+
+<form id="surveyForm">
+  <!-- Page 1 -->
+  <div class="page active" id="page1">
+    <p>What day of lunch are you reviewing?</p>
+    <input type="date" id="lunchDate" required />
+    <button type="button" onclick="nextPage()">Continue</button>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page" id="page2">
+    <p>🌭 Rate the Hotdog</p>
+    <div class="emoji-bar" data-key="hotdog" data-emoji="🌭"></div>
+
+    <p>🔥 Temperature Rating</p>
+    <div class="emoji-bar" data-key="temperature" data-emoji="🔥"></div>
+
+    <p>😊 Overall Experience</p>
+    <div class="emoji-bar" data-key="overall" data-emoji="😡🙂😐😊😁"></div>
+
+    <p>🌸 Give Flowers to the Chefs</p>
+    <div class="emoji-bar" data-key="flowers" data-emoji="🌸"></div>
+
+    <button type="button" onclick="nextPage()">Continue</button>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page" id="page3">
+    <label>🌟 What was something memorable from your meal?</label><br>
+    <textarea id="memorable"></textarea><br><br>
+
+    <label>😕 Was there something that didn't meet your expectations?</label><br>
+    <textarea id="disappointing"></textarea><br>
+
+    <button type="submit">Submit</button>
+  </div>
+</form>
+
+<script>
+  let currentPage = 1;
+  const responses = { hotdog: 0, temperature: 0, overall: 0, flowers: 0 };
+
+  function nextPage() {
+    document.getElementById(`page${currentPage}`).classList.remove("active");
+    currentPage++;
+    document.getElementById(`page${currentPage}`).classList.add("active");
+  }
+
+  function createEmojiBar(div) {
+    const key = div.dataset.key;
+    const emojiSet = div.dataset.emoji;
+    const emojis = emojiSet.length === 1 ? Array(5).fill(emojiSet) : emojiSet.split('');
+    emojis.forEach((emoji, i) => {
+      const span = document.createElement("span");
+      span.innerText = emoji;
+      span.dataset.value = i + 1;
+      span.addEventListener("click", () => {
+        responses[key] = i + 1;
+        updateEmojiBar(div, i + 1);
+      });
+      div.appendChild(span);
+    });
+  }
+
+  function updateEmojiBar(bar, value) {
+    [...bar.children].forEach((span, i) => {
+      span.classList.toggle("full", i < value);
+    });
+  }
+
+  document.querySelectorAll(".emoji-bar").forEach(createEmojiBar);
+
+  document.getElementById("surveyForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const lunchDate = document.getElementById("lunchDate").value;
+    const day = new Date(lunchDate).toLocaleDateString("en-US", { weekday: 'long' });
+
+    if (!['Tuesday', 'Wednesday', 'Thursday'].includes(day)) {
+      alert("Please select a Tuesday, Wednesday, or Thursday.");
+      return;
+    }
+
+    const payload = {
+      day: lunchDate,
+      hotdog: responses.hotdog,
+      temperature: responses.temperature,
+      overall: responses.overall,
+      flowers: responses.flowers,
+      memorable: document.getElementById("memorable").value.trim(),
+      disappointing: document.getElementById("disappointing").value.trim()
+    };
+
+    fetch("YOUR_WEB_APP_URL_HERE", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" }
+    })
+    .then(res => res.text())
+    .then(() => {
+      alert("Thank you! Your response has been recorded.");
+      location.reload();
+    })
+    .catch(err => alert("Submission failed: " + err));
+  });
+</script>
+
+</body>
+</html>
