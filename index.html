@@ -129,3 +129,167 @@
 </head>
 <body>
   <canvas id="confetti-canvas" class="confetti"></canvas>
+
+  <form id="survey-form">
+    <div class="page active" id="page-1">
+      <h2>Lunch Survey</h2>
+      <label for="day">What day of lunch are you reviewing?</label>
+      <input type="date" id="day" name="day" required />
+      <div class="nav-buttons">
+        <button type="button" onclick="nextPage(2)">Continue</button>
+      </div>
+    </div>
+
+    <div class="page" id="page-2">
+      <label>Taste</label>
+      <div class="emoji-bar" id="taste-rating"></div>
+
+      <label>Temperature</label>
+      <div class="emoji-bar" id="temp-rating"></div>
+
+      <label>Overall Experience</label>
+      <div class="emoji-bar" id="overall-rating"></div>
+
+      <label>Give Flowers to the Chefs!</label>
+      <div class="emoji-bar" id="flowers-rating"></div>
+
+      <div class="nav-buttons">
+        <button type="button" onclick="prevPage(1)">Back</button>
+        <button type="button" onclick="nextPage(3)">Continue</button>
+      </div>
+    </div>
+
+    <div class="page" id="page-3">
+      <div style="margin-top: 1.5rem;">
+        <label for="memorable">What was something memorable from your meal?</label>
+        <textarea id="memorable" name="memorable"></textarea>
+      </div>
+      <div style="margin-top: 1.5rem;">
+        <label for="expectations">Was there something that didn't meet your expectations?</label>
+        <textarea id="expectations" name="expectations"></textarea>
+      </div>
+      <div class="nav-buttons">
+        <button type="button" onclick="prevPage(2)">Back</button>
+        <button type="submit">Submit</button>
+      </div>
+    </div>
+  </form>
+<div id="popup">Thanks for your feedback! 🎉</div>
+
+<script>
+  const form = document.getElementById('survey-form');
+  const popup = document.getElementById('popup');
+  const confettiCanvas = document.getElementById('confetti-canvas');
+
+  const ratings = {
+    'taste-rating': 'hotdog.png',
+    'temp-rating': 'fire.png',
+    'flowers-rating': 'flower.png',
+    'overall-rating': ['frown1.png', 'frown2.png', 'neutral.png', 'smile1.png', 'smile2.png']
+  };
+
+  function renderEmojis() {
+    Object.keys(ratings).forEach(id => {
+      const container = document.getElementById(id);
+      container.innerHTML = '';
+      if (Array.isArray(ratings[id])) {
+        ratings[id].forEach((src, i) => {
+          const img = document.createElement('img');
+          img.src = `assets/${src}`;
+          img.dataset.value = i + 1;
+          img.addEventListener('click', () => setRating(id, i + 1));
+          container.appendChild(img);
+        });
+      } else {
+        for (let i = 1; i <= 5; i++) {
+          const img = document.createElement('img');
+          img.src = `assets/${ratings[id]}`;
+          img.dataset.value = i;
+          img.addEventListener('click', () => setRating(id, i));
+          container.appendChild(img);
+        }
+      }
+    });
+  }
+
+  const selectedRatings = {};
+
+  function setRating(id, value) {
+    selectedRatings[id] = value;
+    const container = document.getElementById(id);
+    [...container.children].forEach((img, i) => {
+      img.classList.remove('full');
+      if (i < value) img.classList.add('full');
+    });
+  }
+
+  function nextPage(n) {
+    document.querySelector('.page.active').classList.remove('active');
+    document.getElementById(`page-${n}`).classList.add('active');
+  }
+
+  function prevPage(n) {
+    document.querySelector('.page.active').classList.remove('active');
+    document.getElementById(`page-${n}`).classList.add('active');
+  }
+
+  function showPopup() {
+    popup.style.display = 'block';
+    startConfetti();
+    setTimeout(() => {
+      popup.style.display = 'none';
+    }, 5000);
+  }
+
+  function startConfetti() {
+    const ctx = confettiCanvas.getContext('2d');
+    let pieces = [];
+    for (let i = 0; i < 100; i++) {
+      pieces.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * -window.innerHeight,
+        size: Math.random() * 8 + 4,
+        speed: Math.random() * 3 + 2,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`
+      });
+    }
+    function draw() {
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      pieces.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+        p.y += p.speed;
+        if (p.y > window.innerHeight) p.y = 0;
+      });
+      requestAnimationFrame(draw);
+    }
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+    draw();
+    setTimeout(() => pieces = [], 5000);
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = {
+      day: document.getElementById('day').value,
+      taste: selectedRatings['taste-rating'],
+      temperature: selectedRatings['temp-rating'],
+      overall: selectedRatings['overall-rating'],
+      flowers: selectedRatings['flowers-rating'],
+      memorable: document.getElementById('memorable').value,
+      expectations: document.getElementById('expectations').value
+    };
+    fetch('https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' }
+    }).then(() => {
+      showPopup();
+      form.reset();
+      nextPage(1);
+    });
+  });
+
+  renderEmojis();
+</script>
