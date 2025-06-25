@@ -1,65 +1,134 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Lunch Feedback</title>
+  <title>Lunch Feedback Survey</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
-    .page { display: none; }
-    .active { display: block; }
-    .emoji-bar span {
-      font-size: 2rem;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1e1e2f;
+      color: #eee;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      text-align: center;
+      color: #ffa94d;
+    }
+
+    .page {
+      display: none;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    .active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    label, p {
+      font-size: 1.1rem;
+      margin-top: 1rem;
+    }
+
+    .emoji-bar {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+    }
+
+    .emoji-bar img {
+      width: 40px;
+      height: 40px;
       cursor: pointer;
-      filter: grayscale(100%);
-      transition: 0.2s;
+      filter: grayscale(100%) brightness(60%);
+      transition: 0.2s ease;
     }
-    .emoji-bar span.full {
-      filter: grayscale(0%);
+
+    .emoji-bar img.full {
+      filter: grayscale(0%) brightness(100%);
     }
-    button { margin-top: 1rem; padding: 10px 20px; font-size: 1rem; }
-    textarea { width: 100%; height: 100px; margin-top: 0.5rem; }
-    input[type="date"]::-webkit-calendar-picker-indicator { filter: grayscale(1); }
+
+    .emoji-bar img.half {
+      filter: grayscale(0%) brightness(80%);
+      clip-path: inset(0 50% 0 0);
+    }
+
+    input[type="date"], textarea, button {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #444;
+      background-color: #2a2a3d;
+      color: #eee;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      background: #ffa94d;
+      color: white;
+      border: none;
+      font-weight: bold;
+      margin-top: 1.5rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #e67700;
+    }
   </style>
 </head>
 <body>
 
-<h2>Lunch Feedback Survey</h2>
+<h2>✨ Lunch Feedback Survey ✨</h2>
 
 <form id="surveyForm">
   <!-- Page 1 -->
   <div class="page active" id="page1">
-    <p>What day of lunch are you reviewing?</p>
+    <label for="lunchDate">📅 What day of lunch are you reviewing?</label><br>
     <input type="date" id="lunchDate" required />
-    <button type="button" onclick="nextPage()">Continue</button>
+    <button type="button" onclick="nextPage()">Continue ➡️</button>
   </div>
 
   <!-- Page 2 -->
   <div class="page" id="page2">
-    <p>🌭 Rate the Hotdog</p>
-    <div class="emoji-bar" data-key="hotdog" data-emoji="🌭"></div>
+    <p>🌭 Rate the Hotdog:</p>
+    <div class="emoji-bar" data-key="hotdog" data-src="hotdog.png"></div>
 
-    <p>🔥 Temperature Rating</p>
-    <div class="emoji-bar" data-key="temperature" data-emoji="🔥"></div>
+    <p>🔥 Temperature Rating:</p>
+    <div class="emoji-bar" data-key="temperature" data-src="fire.png"></div>
 
-    <p>😊 Overall Experience</p>
-    <div class="emoji-bar" data-key="overall" data-emoji="😡🙂😐😊😁"></div>
+    <p>😊 Overall Experience:</p>
+    <div class="emoji-bar" data-key="overall" data-src="face.png"></div>
 
-    <p>🌸 Give Flowers to the Chefs</p>
-    <div class="emoji-bar" data-key="flowers" data-emoji="🌸"></div>
+    <p>🌸 Give Flowers to the Chefs:</p>
+    <div class="emoji-bar" data-key="flowers" data-src="flower.png"></div>
 
-    <button type="button" onclick="nextPage()">Continue</button>
+    <button type="button" onclick="nextPage()">Continue ➡️</button>
   </div>
 
   <!-- Page 3 -->
   <div class="page" id="page3">
-    <label>🌟 What was something memorable from your meal?</label><br>
-    <textarea id="memorable"></textarea><br><br>
+    <label>Memorable part of your meal:</label>
+    <textarea id="memorable"></textarea>
 
-    <label>😕 Was there something that didn't meet your expectations?</label><br>
-    <textarea id="disappointing"></textarea><br>
+    <label>Anything that didn't meet your expectations?</label>
+    <textarea id="disappointing"></textarea>
 
-    <button type="submit">Submit</button>
+    <button type="submit">Submit ✉️</button>
   </div>
 </form>
 
@@ -75,23 +144,36 @@
 
   function createEmojiBar(div) {
     const key = div.dataset.key;
-    const emojiSet = div.dataset.emoji;
-    const emojis = emojiSet.length === 1 ? Array(5).fill(emojiSet) : emojiSet.split('');
-    emojis.forEach((emoji, i) => {
-      const span = document.createElement("span");
-      span.innerText = emoji;
-      span.dataset.value = i + 1;
-      span.addEventListener("click", () => {
-        responses[key] = i + 1;
-        updateEmojiBar(div, i + 1);
+    const src = div.dataset.src;
+    for (let i = 1; i <= 5; i++) {
+      const img = document.createElement("img");
+      img.src = src;
+      img.dataset.value = i;
+      img.addEventListener("click", () => {
+        responses[key] = i;
+        updateEmojiBar(div, i);
       });
-      div.appendChild(span);
+      div.appendChild(img);
+    }
+    // Add half point hover support
+    div.addEventListener("mousemove", e => {
+      const rect = div.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percent = x / rect.width;
+      const value = Math.round(percent * 10) / 2;
+      updateEmojiBar(div, value);
+    });
+    div.addEventListener("mouseleave", () => {
+      updateEmojiBar(div, responses[key]);
     });
   }
 
   function updateEmojiBar(bar, value) {
-    [...bar.children].forEach((span, i) => {
-      span.classList.toggle("full", i < value);
+    const imgs = [...bar.querySelectorAll('img')];
+    imgs.forEach((img, i) => {
+      img.classList.remove("full", "half");
+      if (i + 1 <= value) img.classList.add("full");
+      else if (i + 0.5 === value) img.classList.add("half");
     });
   }
 
@@ -125,7 +207,7 @@
     })
     .then(res => res.text())
     .then(() => {
-      alert("Thank you! Your response has been recorded.");
+      alert("🎉 Thank you! Your response has been recorded.");
       location.reload();
     })
     .catch(err => alert("Submission failed: " + err));
