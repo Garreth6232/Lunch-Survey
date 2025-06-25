@@ -4,7 +4,116 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lunch Survey</title>
-  <!-- (Keep existing <style> and <script> here) -->
+  <style>
+    body {
+      font-family: 'Calibri', 'Times New Roman', serif;
+      background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)), url('https://raw.githubusercontent.com/Garreth6232/Lunch-Survey/main/assets/Moda-678x381.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem;
+    }
+    form {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(139, 0, 0, 0.7);
+    }
+    h2 {
+      text-align: center;
+      color: #8B0000;
+      margin-bottom: 1rem;
+    }
+    .page {
+      display: none;
+    }
+    .page.active {
+      display: block;
+    }
+    label, p {
+      font-size: 1.1rem;
+      margin-top: 1rem;
+      color: #fff;
+    }
+    .emoji-bar {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+    }
+    .emoji-bar img {
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      filter: grayscale(100%) brightness(60%);
+    }
+    .emoji-bar img.full {
+      filter: grayscale(0%) brightness(100%);
+    }
+    .emoji-bar img.half {
+      filter: grayscale(0%) brightness(85%);
+      clip-path: inset(0 50% 0 0);
+    }
+    .emoji-bar img:hover {
+      transform: scale(1.15);
+      filter: brightness(110%) !important;
+    }
+    input[type="date"], textarea, button {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #8B0000;
+      background-color: #1a1a1a;
+      color: #fff;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    button {
+      background: #8B0000;
+      color: white;
+      border: none;
+      font-weight: bold;
+      margin-top: 1.5rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #5c0000;
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    #popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #000;
+      padding: 2rem;
+      border: 2px solid #8B0000;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1.2rem;
+      text-align: center;
+      z-index: 1000;
+    }
+  </style>
 </head>
 <body>
   <form id="survey-form">
@@ -67,4 +176,3 @@
   </script>
 </body>
 </html>
-
