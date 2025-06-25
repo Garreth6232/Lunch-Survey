@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lunch Survey</title>
   <style>
     body {
@@ -82,15 +82,6 @@
       height: 100px;
       resize: vertical;
     }
-    button {
-      background: #8B0000;
-      color: white;
-      border: none;
-      font-weight: bold;
-      margin-top: 1.5rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
     button:hover {
       background: #9c0025;
       transform: translateY(-2px);
@@ -160,136 +151,137 @@
     </div>
 
     <div class="page" id="page-3">
-      <div style="margin-top: 1.5rem;">
-        <label for="memorable">What was something memorable from your meal?</label>
-        <textarea id="memorable" name="memorable"></textarea>
-      </div>
-      <div style="margin-top: 1.5rem;">
-        <label for="expectations">Was there something that didn't meet your expectations?</label>
-        <textarea id="expectations" name="expectations"></textarea>
-      </div>
+      <label for="memorable">What was something memorable from your meal?</label>
+      <textarea id="memorable" name="memorable"></textarea>
+
+      <label for="expectations">Was there something that didn't meet your expectations?</label>
+      <textarea id="expectations" name="expectations"></textarea>
+
       <div class="nav-buttons">
         <button type="button" onclick="prevPage(2)">Back</button>
         <button type="submit">Submit</button>
       </div>
     </div>
   </form>
-<div id="popup">Thanks for your feedback! 🎉</div>
 
-<script>
-  const form = document.getElementById('survey-form');
-  const popup = document.getElementById('popup');
-  const confettiCanvas = document.getElementById('confetti-canvas');
+  <div id="popup">Thanks for your feedback! 🎉</div>
 
-  const ratings = {
-    'taste-rating': 'hotdog.png',
-    'temp-rating': 'fire.png',
-    'flowers-rating': 'flower.png',
-    'overall-rating': ['frown1.png', 'frown2.png', 'neutral.png', 'smile1.png', 'smile2.png']
-  };
+  <script>
+    const form = document.getElementById('survey-form');
+    const popup = document.getElementById('popup');
+    const confettiCanvas = document.getElementById('confetti-canvas');
 
-  function renderEmojis() {
-    Object.keys(ratings).forEach(id => {
-      const container = document.getElementById(id);
-      container.innerHTML = '';
-      if (Array.isArray(ratings[id])) {
-        ratings[id].forEach((src, i) => {
-          const img = document.createElement('img');
-          img.src = `assets/${src}`;
-          img.dataset.value = i + 1;
-          img.addEventListener('click', () => setRating(id, i + 1));
-          container.appendChild(img);
-        });
-      } else {
-        for (let i = 1; i <= 5; i++) {
-          const img = document.createElement('img');
-          img.src = `assets/${ratings[id]}`;
-          img.dataset.value = i;
-          img.addEventListener('click', () => setRating(id, i));
-          container.appendChild(img);
-        }
-      }
-    });
-  }
-
-  const selectedRatings = {};
-
-  function setRating(id, value) {
-    selectedRatings[id] = value;
-    const container = document.getElementById(id);
-    [...container.children].forEach((img, i) => {
-      img.classList.remove('full');
-      if (i < value) img.classList.add('full');
-    });
-  }
-
-  function nextPage(n) {
-    document.querySelector('.page.active').classList.remove('active');
-    document.getElementById(`page-${n}`).classList.add('active');
-  }
-
-  function prevPage(n) {
-    document.querySelector('.page.active').classList.remove('active');
-    document.getElementById(`page-${n}`).classList.add('active');
-  }
-
-  function showPopup() {
-    popup.style.display = 'block';
-    startConfetti();
-    setTimeout(() => {
-      popup.style.display = 'none';
-    }, 5000);
-  }
-
-  function startConfetti() {
-    const ctx = confettiCanvas.getContext('2d');
-    let pieces = [];
-    for (let i = 0; i < 100; i++) {
-      pieces.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * -window.innerHeight,
-        size: Math.random() * 8 + 4,
-        speed: Math.random() * 3 + 2,
-        color: `hsl(${Math.random() * 360}, 100%, 50%)`
-      });
-    }
-    function draw() {
-      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-      pieces.forEach(p => {
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
-        p.y += p.speed;
-        if (p.y > window.innerHeight) p.y = 0;
-      });
-      requestAnimationFrame(draw);
-    }
-    confettiCanvas.width = window.innerWidth;
-    confettiCanvas.height = window.innerHeight;
-    draw();
-    setTimeout(() => pieces = [], 5000);
-  }
-
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const data = {
-      day: document.getElementById('day').value,
-      taste: selectedRatings['taste-rating'],
-      temperature: selectedRatings['temp-rating'],
-      overall: selectedRatings['overall-rating'],
-      flowers: selectedRatings['flowers-rating'],
-      memorable: document.getElementById('memorable').value,
-      expectations: document.getElementById('expectations').value
+    const ratings = {
+      'taste-rating': 'hotdog.png',
+      'temp-rating': 'fire.png',
+      'flowers-rating': 'flower.png',
+      'overall-rating': ['frown1.png', 'frown2.png', 'neutral.png', 'smile1.png', 'smile2.png']
     };
-    fetch('https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec', {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: { 'Content-Type': 'application/json' }
-    }).then(() => {
-      showPopup();
-      form.reset();
-      nextPage(1);
-    });
-  });
 
-  renderEmojis();
-</script>
+    function renderEmojis() {
+      Object.keys(ratings).forEach(id => {
+        const container = document.getElementById(id);
+        container.innerHTML = '';
+        if (Array.isArray(ratings[id])) {
+          ratings[id].forEach((src, i) => {
+            const img = document.createElement('img');
+            img.src = `assets/${src}`;
+            img.dataset.value = i + 1;
+            img.addEventListener('click', () => setRating(id, i + 1));
+            container.appendChild(img);
+          });
+        } else {
+          for (let i = 1; i <= 5; i++) {
+            const img = document.createElement('img');
+            img.src = `assets/${ratings[id]}`;
+            img.dataset.value = i;
+            img.addEventListener('click', () => setRating(id, i));
+            container.appendChild(img);
+          }
+        }
+      });
+    }
+
+    const selectedRatings = {};
+
+    function setRating(id, value) {
+      selectedRatings[id] = value;
+      const container = document.getElementById(id);
+      [...container.children].forEach((img, i) => {
+        img.classList.remove('full');
+        if (i < value) img.classList.add('full');
+      });
+    }
+
+    function nextPage(n) {
+      document.querySelector('.page.active').classList.remove('active');
+      document.getElementById(`page-${n}`).classList.add('active');
+    }
+
+    function prevPage(n) {
+      document.querySelector('.page.active').classList.remove('active');
+      document.getElementById(`page-${n}`).classList.add('active');
+    }
+
+    function showPopup() {
+      popup.style.display = 'block';
+      startConfetti();
+      setTimeout(() => {
+        popup.style.display = 'none';
+      }, 5000);
+    }
+
+    function startConfetti() {
+      const ctx = confettiCanvas.getContext('2d');
+      let pieces = [];
+      for (let i = 0; i < 100; i++) {
+        pieces.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * -window.innerHeight,
+          size: Math.random() * 8 + 4,
+          speed: Math.random() * 3 + 2,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`
+        });
+      }
+      function draw() {
+        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        pieces.forEach(p => {
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.x, p.y, p.size, p.size);
+          p.y += p.speed;
+          if (p.y > window.innerHeight) p.y = 0;
+        });
+        requestAnimationFrame(draw);
+      }
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+      draw();
+      setTimeout(() => pieces = [], 5000);
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = {
+        day: document.getElementById('day').value,
+        taste: selectedRatings['taste-rating'],
+        temperature: selectedRatings['temp-rating'],
+        overall: selectedRatings['overall-rating'],
+        flowers: selectedRatings['flowers-rating'],
+        memorable: document.getElementById('memorable').value,
+        expectations: document.getElementById('expectations').value
+      };
+      fetch('https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(() => {
+        showPopup();
+        form.reset();
+        nextPage(1);
+      });
+    });
+
+    renderEmojis();
+  </script>
+</body>
+</html>
