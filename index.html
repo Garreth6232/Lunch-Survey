@@ -1,9 +1,6 @@
 <style>
-  * {
-    box-sizing: border-box;
-  }
   body {
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Calibri', 'Times New Roman', serif;
     background: url('YOUR_BACKGROUND_IMAGE_URL_HERE') no-repeat center center fixed;
     background-size: cover;
     color: #fff;
@@ -22,13 +19,13 @@
     border-radius: 12px;
     max-width: 600px;
     width: 100%;
-    box-shadow: 0 10px 25px rgba(255, 0, 0, 0.5);
+    box-shadow: 0 10px 25px rgba(139, 0, 0, 0.7);
     transition: opacity 0.4s ease, transform 0.4s ease;
   }
 
   h2 {
     text-align: center;
-    color: #ff1a1a;
+    color: #8B0000;
   }
 
   .page {
@@ -77,32 +74,10 @@
     transform: scale(1.15);
   }
 
-  .emoji-bar[data-key="hotdog"] {
-    justify-content: center;
-  }
-  .emoji-bar[data-key="hotdog"]::before,
-  .emoji-bar[data-key="temperature"]::before,
-  .emoji-bar[data-key="flowers"]::before {
-    content: "";
-    display: none;
-  }
-
-  .emoji-bar[data-key="hotdog"] img {
-    content: url("https://garreth6232.github.io/Lunch-Survey/assets/hotdog.png");
-  }
-
-  .emoji-bar[data-key="temperature"] img {
-    content: url("https://garreth6232.github.io/Lunch-Survey/assets/fire.png");
-  }
-
-  .emoji-bar[data-key="flowers"] img {
-    content: url("https://garreth6232.github.io/Lunch-Survey/assets/flower.png");
-  }
-
-  input[type="date"], textarea, button {
+  input[type="date"], textarea, button, .nav-buttons button {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ff1a1a;
+    border: 1px solid #8B0000;
     background-color: #1a1a1a;
     color: #fff;
     border-radius: 8px;
@@ -115,8 +90,8 @@
     resize: vertical;
   }
 
-  button {
-    background: #ff1a1a;
+  button, .nav-buttons button {
+    background: #8B0000;
     color: white;
     border: none;
     font-weight: bold;
@@ -124,8 +99,14 @@
     cursor: pointer;
   }
 
-  button:hover {
-    background: #cc0000;
+  button:hover, .nav-buttons button:hover {
+    background: #5c0000;
+  }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
   }
 
   #popup {
@@ -136,12 +117,17 @@
     transform: translate(-50%, -50%);
     background: #000;
     padding: 2rem;
-    border: 2px solid #ff1a1a;
+    border: 2px solid #8B0000;
     border-radius: 10px;
     color: #fff;
     font-size: 1.2rem;
     text-align: center;
     z-index: 1000;
+  }
+
+  @keyframes fall {
+    0% { top: -10%; opacity: 1; }
+    100% { top: 100%; opacity: 0; }
   }
 
   @media (max-width: 600px) {
@@ -157,27 +143,26 @@
       width: 30px;
       height: 30px;
     }
+
+    .nav-buttons {
+      flex-direction: column;
+    }
   }
 </style>
 
 <script>
-  // force calendar picker for mobile compatibility
-  window.addEventListener("DOMContentLoaded", () => {
-    const dateInput = document.querySelector("input[type='date']");
-    if (!dateInput.showPicker && !/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      dateInput.type = 'text';
-      dateInput.placeholder = 'Select a date (Tue, Wed, Thurs)';
-    }
+  function confetti() {
+    for (let i = 0; i < 30; i++) {
+      const conf = document.createElement('div');
+      conf.innerText = ["🎉", "✨", "🎊", "💥", "🌟"][Math.floor(Math.random() * 5)];
+      conf.style.position = "fixed";
+      conf.style.left = Math.random() * 100 + "%";
+      conf.style.top = "-10%";
+      conf.style.fontSize = "2rem";
+      conf.style.animation = "fall 2s ease-out forwards";
+      document.body.appendChild(conf);
 
-    // Initialize emoji bars
-    const ratings = ["hotdog", "temperature", "flowers"];
-    ratings.forEach(key => {
-      const container = document.querySelector(`.emoji-bar[data-key="${key}"]`);
-      for (let i = 0; i < 5; i++) {
-        const img = document.createElement("img");
-        img.dataset.value = i + 1;
-        container.appendChild(img);
-      }
-    });
-  });
+      setTimeout(() => conf.remove(), 2000);
+    }
+  }
 </script>
