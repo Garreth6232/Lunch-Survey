@@ -11,6 +11,7 @@
     min-height: 100vh;
     margin: 0;
     padding: 2rem;
+    transition: background 0.4s ease;
   }
 
   form {
@@ -20,19 +21,27 @@
     max-width: 600px;
     width: 100%;
     box-shadow: 0 10px 25px rgba(139, 0, 0, 0.7);
-    transition: opacity 0.4s ease, transform 0.4s ease;
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   h2 {
     text-align: center;
     color: #8B0000;
+    margin-bottom: 1rem;
   }
 
   .page {
     display: none;
     opacity: 0;
     transform: translateY(10px);
+    animation: fadeIn 0.5s ease forwards;
   }
+
   .active {
     display: block;
     opacity: 1;
@@ -42,6 +51,7 @@
   label, p {
     font-size: 1.1rem;
     margin-top: 1rem;
+    color: #fff;
   }
 
   .emoji-bar {
@@ -72,6 +82,7 @@
 
   .emoji-bar img:hover {
     transform: scale(1.15);
+    filter: brightness(110%) !important;
   }
 
   input[type="date"], textarea, button, .nav-buttons button {
@@ -97,6 +108,7 @@
     font-weight: bold;
     margin-top: 1.5rem;
     cursor: pointer;
+    transition: background 0.3s ease;
   }
 
   button:hover, .nav-buttons button:hover {
@@ -107,6 +119,7 @@
     display: flex;
     justify-content: space-between;
     gap: 1rem;
+    margin-top: 1.5rem;
   }
 
   #popup {
@@ -126,8 +139,8 @@
   }
 
   @keyframes fall {
-    0% { top: -10%; opacity: 1; }
-    100% { top: 100%; opacity: 0; }
+    0% { top: -10%; opacity: 1; transform: rotate(0deg); }
+    100% { top: 100%; opacity: 0; transform: rotate(360deg); }
   }
 
   @media (max-width: 600px) {
@@ -152,18 +165,18 @@
 
 <script>
   function confetti() {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 40; i++) {
       const conf = document.createElement('div');
       conf.innerText = ["🎉", "✨", "🎊", "💥", "🌟"][Math.floor(Math.random() * 5)];
       conf.style.position = "fixed";
       conf.style.left = Math.random() * 100 + "%";
       conf.style.top = "-10%";
-      conf.style.fontSize = "2rem";
-      conf.style.animation = "fall 2.5s ease-out forwards";
+      conf.style.fontSize = Math.random() * 1.5 + 1 + "rem";
+      conf.style.animation = `fall ${2 + Math.random()}s ease-out forwards`;
       conf.style.pointerEvents = "none";
+      conf.style.zIndex = 1001;
       document.body.appendChild(conf);
-
-      setTimeout(() => conf.remove(), 3000);
+      setTimeout(() => conf.remove(), 4000);
     }
   }
 </script>
