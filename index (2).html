@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Campus Lunch Survey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dim-overlay: rgba(0, 0, 0, 0.6);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('assets/modabackground.png') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .survey-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 1rem auto 0.5rem;
+      text-align: center;
+      color: #8b0000;
+    }
+    form {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 2rem;
+      width: 95%;
+      max-width: 700px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      box-sizing: border-box;
+    }
+    h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    input[type="date"], textarea {
+      width: 100%;
+      padding: 14px;
+      margin-top: 0.5rem;
+      border: 1px solid #888;
+      background: #f0f0f0;
+      color: #222;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 150px;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    button {
+      background-color: #8b0000;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      flex: 1;
+    }
+    button:hover {
+      background-color: #5a0000;
+    }
+    #popup {
+      display: none;
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #eee;
+      padding: 2rem;
+      border: 2px solid #8b0000;
+      color: #000;
+      font-size: 1.3rem;
+      z-index: 10001;
+      text-align: center;
+    }
+    .emoji-bar {
+      display: flex;
+      justify-content: center;
+      gap: 0.25rem;
+      margin: 1rem 0;
+    }
+    .emoji-container {
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+    }
+    .emoji-container img {
+      width: 100%;
+      height: 100%;
+      filter: grayscale(100%);
+    }
+    .emoji-container.selected img {
+      filter: grayscale(0%);
+    }
+  </style>
+</head>
+<body>
+  <h1 class="survey-title">Campus Lunch Survey</h1>
+  <form id="surveyForm">
+    <div class="page active">
+      <label for="lunchDate">What day are you reviewing?</label>
+      <input type="date" id="lunchDate" name="lunchDate" required />
+      <div class="buttons">
+        <button type="button" onclick="nextPage()">Continue</button>
+      </div>
+    </div>
+    <div class="page">
+      <label>Taste</label>
+      <div class="emoji-bar" id="tasteRating"></div>
+      <label>Temperature</label>
+      <div class="emoji-bar" id="temperatureRating"></div>
+      <label>Overall Experience</label>
+      <div class="emoji-bar" id="overallRating"></div>
+      <label>Flowers for the Chefs</label>
+      <div class="emoji-bar" id="flowersRating"></div>
+      <div class="buttons">
+        <button type="button" onclick="prevPage()">Back</button>
+        <button type="button" onclick="nextPage()">Continue</button>
+      </div>
+    </div>
+    <div class="page">
+      <label>What was something memorable from your meal?</label>
+      <textarea name="memorable" required></textarea>
+      <label>Was there something that didn't meet your expectations?</label>
+      <textarea name="expectations" required></textarea>
+      <div class="buttons">
+        <button type="button" onclick="prevPage()">Back</button>
+        <button type="submit">Submit</button>
+      </div>
+    </div>
+  </form>
+
+  <div id="popup">
+    Thank you for submitting!<br/>
+    <button onclick="window.close()">Close Page</button>
+  </div>
+
+  <script>
+    let currentPage = 0;
+    const pages = document.querySelectorAll(".page");
+
+    function showPage(index) {
+      pages.forEach((page, i) => {
+        page.classList.toggle("active", i === index);
+      });
+      currentPage = index;
+    }
+
+    function nextPage() {
+      if (currentPage < pages.length - 1) {
+        showPage(currentPage + 1);
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        showPage(currentPage - 1);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      showPage(0);
+    });
+
+    document.getElementById("surveyForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      fetch("https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec", {
+        method: "POST",
+        body: new FormData(this),
+      }).then(response => {
+        if (response.ok) {
+          document.getElementById("popup").style.display = "block";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
