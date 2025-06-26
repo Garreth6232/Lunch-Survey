@@ -11,7 +11,7 @@
     }
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/Moda-678x381.jpg') no-repeat center center fixed;
+      background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/modabackground.png') no-repeat center center fixed;
       background-size: cover;
       margin: 0;
       padding: 0;
@@ -111,6 +111,9 @@
       height: 100vh;
       z-index: 999;
     }
+    #confetti-video {
+      opacity: 0.6;
+    }
     .emoji-bar {
       display: flex;
       justify-content: center;
@@ -131,10 +134,6 @@
     .emoji-container.filled img {
       filter: grayscale(0%);
     }
-    .emoji-container.half img {
-      filter: grayscale(0%);
-      clip-path: inset(0 50% 0 0);
-    }
     .dim-overlay {
       position: fixed;
       inset: 0;
@@ -144,144 +143,120 @@
   </style>
 </head>
 <body>
-  <div class="survey-title" id="survey-week"></div>
-  <canvas id="confetti-canvas" class="confetti"></canvas>
-  <video id="confetti-video" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; object-fit:cover; z-index:1000;" autoplay muted loop playsinline>
-    <source src="assets/confetti.mp4" type="video/mp4">
-  </video>
-  <div class="dim-overlay" id="dim-overlay" style="display: none;"></div>
-  <form id="survey-form" action="https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec" method="POST">
-    <div class="page active" id="page-1">
-      <h2>Lunch Survey</h2>
-      <label for="day">What day are you reviewing lunch for?</label>
-      <input type="date" id="day" name="day" required />
+  <h1 class="survey-title">Campus Lunch Survey</h1>
+  <form id="surveyForm">
+    <div class="page active" id="page1">
+      <label for="date">What day are you reviewing lunch for?</label>
+      <input type="date" id="date" name="date" required />
       <div class="buttons">
-        <span></span>
-        <button type="button" id="btn-next-1">Continue</button>
+        <div></div>
+        <button type="button" onclick="nextPage()">Continue</button>
       </div>
     </div>
-    <div class="page" id="page-2">
+
+    <div class="page" id="page2">
       <label>Taste</label>
-      <div class="emoji-bar" id="taste-rating"></div>
+      <div class="emoji-bar" id="taste-bar"></div>
+
       <label>Temperature</label>
-      <div class="emoji-bar" id="temp-rating"></div>
+      <div class="emoji-bar" id="temp-bar"></div>
+
       <label>Overall Experience</label>
-      <div class="emoji-bar" id="overall-rating"></div>
-      <label>Give Flowers to the Chefs!</label>
-      <div class="emoji-bar" id="flowers-rating"></div>
+      <div class="emoji-bar" id="overall-bar"></div>
+
+      <label>Enjoyed your lunch? Give Flowers to the chefs!</label>
+      <div class="emoji-bar" id="flowers-bar"></div>
+
       <div class="buttons">
-        <button type="button" id="btn-back-2">Back</button>
-        <button type="button" id="btn-next-2">Continue</button>
+        <button type="button" onclick="prevPage()">Back</button>
+        <button type="button" onclick="nextPage()">Continue</button>
       </div>
     </div>
-    <div class="page" id="page-3">
+
+    <div class="page" id="page3">
       <label for="memorable">What was something memorable from your meal?</label>
       <textarea id="memorable" name="memorable" required></textarea>
-      <label for="expectations">Was there something that didn't meet your expectations?</label>
-      <textarea id="expectations" name="expectations" required></textarea>
+
+      <label for="expectation">Was there something that didn't meet your expectations?</label>
+      <textarea id="expectation" name="expectation" required></textarea>
+
       <div class="buttons">
-        <button type="button" id="btn-back-3">Back</button>
+        <button type="button" onclick="prevPage()">Back</button>
         <button type="submit">Submit</button>
       </div>
-      <div id="confirmation">✔️ Your response was submitted successfully!</div>
+    </div>
+
+    <div class="page" id="page4">
+      <div class="dim-overlay"></div>
+      <div id="popup">
+        <p>🎉 Thanks for your feedback!</p>
+        <button onclick="window.close()">Close Page</button>
+      </div>
+      <video id="confetti-video" autoplay muted loop playsinline style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 10000;">
+        <source src="assets/confetti-overlay.mp4" type="video/mp4">
+      </video>
     </div>
   </form>
-  <div id="popup">
-    🎉 Thanks for your feedback! 🎉<br>
-    <button id="close-page">Close Page</button>
-  </div>
-  <script>
-    function getWeekRange() {
-      const today = new Date();
-      const day = today.getDay();
-      const offset = day >= 2 && day <= 4 ? 0 : 7;
-      const base = new Date(today);
-      base.setDate(base.getDate() - ((day + 5) % 7) - offset);
-      const tues = new Date(base);
-      const thurs = new Date(base);
-      tues.setDate(base.getDate());
-      thurs.setDate(base.getDate() + 2);
-      const options = { month: 'numeric', day: 'numeric' };
-      return `${tues.toLocaleDateString(undefined, options)} - ${thurs.toLocaleDateString(undefined, options)}`;
-    }
-    document.getElementById('survey-week').textContent = `Campus Lunch Survey ${getWeekRange()}`;
 
-    function showPage(pageNumber) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(`page-${pageNumber}`).classList.add('active');
+  <script>
+    const pages = document.querySelectorAll('.page');
+    let currentPage = 0;
+
+    function showPage(index) {
+      pages.forEach((p, i) => p.classList.toggle('active', i === index));
+      currentPage = index;
     }
-    document.getElementById('btn-next-1').addEventListener('click', () => showPage(2));
-    document.getElementById('btn-next-2').addEventListener('click', () => showPage(3));
-    document.getElementById('btn-back-2').addEventListener('click', () => showPage(1));
-    document.getElementById('btn-back-3').addEventListener('click', () => showPage(2));
-    document.getElementById('close-page').addEventListener('click', () => {
-      window.open('', '_self', '');
-      window.close();
-    });
-    document.getElementById('survey-form').addEventListener('submit', function(e) {
+    function nextPage() { showPage(currentPage + 1); }
+    function prevPage() { showPage(currentPage - 1); }
+
+    function createEmojiBar(id, emojiPath) {
+      const bar = document.getElementById(id);
+      for (let i = 1; i <= 5; i++) {
+        const container = document.createElement('div');
+        container.className = 'emoji-container';
+        const img = document.createElement('img');
+        img.src = emojiPath;
+        img.alt = id;
+        container.appendChild(img);
+        container.addEventListener('click', () => {
+          Array.from(bar.children).forEach((c, index) => {
+            c.classList.toggle('filled', index < i);
+          });
+          bar.setAttribute('data-value', i);
+        });
+        bar.appendChild(container);
+      }
+    }
+
+    createEmojiBar('taste-bar', 'assets/taste.png');
+    createEmojiBar('temp-bar', 'assets/temp.png');
+    createEmojiBar('overall-bar', 'assets/overall3.png');
+    createEmojiBar('flowers-bar', 'assets/flowers.png');
+
+    document.getElementById('surveyForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      const form = this;
-      fetch(form.action, {
+      const data = {
+        date: document.getElementById('date').value,
+        taste: document.getElementById('taste-bar').getAttribute('data-value') || '',
+        temp: document.getElementById('temp-bar').getAttribute('data-value') || '',
+        overall: document.getElementById('overall-bar').getAttribute('data-value') || '',
+        flowers: document.getElementById('flowers-bar').getAttribute('data-value') || '',
+        memorable: document.getElementById('memorable').value,
+        expectation: document.getElementById('expectation').value
+      };
+
+      fetch('https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec', {
         method: 'POST',
         mode: 'no-cors',
-        body: new FormData(form),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
       });
-      form.reset();
-      document.getElementById('confirmation').style.display = 'block';
+
+      showPage(3);
       document.getElementById('popup').style.display = 'block';
-      document.getElementById('confetti-video').style.display = 'block';
-      document.getElementById('dim-overlay').style.display = 'block';
     });
-    function createEmojiRating(containerId, name, emojiPaths) {
-      const container = document.getElementById(containerId);
-      let currentRating = 0;
-      for (let i = 0; i < 5; i++) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'emoji-container';
-        const img = document.createElement('img');
-        img.src = Array.isArray(emojiPaths) ? emojiPaths[i] : emojiPaths;
-        wrapper.appendChild(img);
-        container.appendChild(wrapper);
-        wrapper.addEventListener('mousemove', (e) => {
-          const percent = e.offsetX / wrapper.offsetWidth;
-          highlightEmojis(container, i + (percent < 0.5 ? 0.5 : 1));
-        });
-        wrapper.addEventListener('mouseleave', () => {
-          highlightEmojis(container, currentRating);
-        });
-        wrapper.addEventListener('click', (e) => {
-          const percent = e.offsetX / wrapper.offsetWidth;
-          currentRating = i + (percent < 0.5 ? 0.5 : 1);
-          highlightEmojis(container, currentRating);
-        });
-      }
-      const hiddenInput = document.createElement('input');
-      hiddenInput.type = 'hidden';
-      hiddenInput.name = name;
-      container.appendChild(hiddenInput);
-      function highlightEmojis(container, rating) {
-        const children = container.querySelectorAll('.emoji-container');
-        children.forEach((c, i) => {
-          c.classList.remove('half', 'filled');
-          if (i + 1 <= rating) {
-            c.classList.add('filled');
-          } else if (i + 0.5 === rating) {
-            c.classList.add('half');
-          }
-        });
-        hiddenInput.value = rating;
-      }
-    }
-    createEmojiRating('taste-rating', 'taste', 'assets/hotdog.png');
-    createEmojiRating('temp-rating', 'temperature', 'assets/fire.png');
-    createEmojiRating('flowers-rating', 'flowers', 'assets/flower.png');
-    createEmojiRating('overall-rating', 'overall', [
-      'assets/frown1.png',
-      'assets/frown2.png',
-      'assets/neutral.png',
-      'assets/smile1.png',
-      'assets/smile2.png'
-    ]);
   </script>
 </body>
 </html>
