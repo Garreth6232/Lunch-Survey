@@ -6,10 +6,12 @@
   <title>Campus Lunch Survey</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    :root { --dim-overlay: rgba(0, 0, 0, 0.6); }
+    :root {
+      --dim-overlay: rgba(0, 0, 0, 0.6);
+    }
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('assets/modabackground.png') no-repeat center center fixed;
+      background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('modabackground.png') no-repeat center center fixed;
       background-size: cover;
       margin: 0;
       padding: 0;
@@ -165,7 +167,7 @@
   </div>
 
   <video class="confetti-video" id="confettiVideo" autoplay muted loop>
-    <source src="assets/confetti.mp4" type="video/mp4" />
+    <source src="confetti.mp4" type="video/mp4" />
   </video>
 
   <script>
@@ -203,48 +205,9 @@
       document.getElementById("surveyWeek").innerText = `Campus Lunch Survey ${tuesday.toLocaleDateString(undefined, options)}–${thursday.toLocaleDateString(undefined, options)}`;
     }
 
-    function createEmojiBar(containerId, name, imgSource) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = "";
-      for (let i = 1; i <= 5; i++) {
-        const div = document.createElement("div");
-        div.classList.add("emoji-container");
-        div.dataset.value = i;
-        const img = document.createElement("img");
-        img.src = Array.isArray(imgSource) ? imgSource[i - 1] : imgSource;
-        div.appendChild(img);
-        container.appendChild(div);
-        div.addEventListener("click", () => {
-          container.querySelectorAll(".emoji-container").forEach(c => c.classList.remove("selected"));
-          for (let j = 0; j < i; j++) {
-            container.children[j].classList.add("selected");
-          }
-          let input = document.querySelector(`input[name="${name}"]`);
-          if (!input) {
-            input = document.createElement("input");
-            input.type = "hidden";
-            input.name = name;
-            container.appendChild(input);
-          }
-          input.value = i;
-        });
-      }
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
       showPage(0);
       setWeekLabel();
-
-      createEmojiBar("tasteRating", "taste", "assets/hotdog.png");
-      createEmojiBar("temperatureRating", "temperature", "assets/fire.png");
-      createEmojiBar("overallRating", "overall", [
-        "assets/frowny.png",
-        "assets/frowny.png",
-        "assets/neutral.png",
-        "assets/smiley.png",
-        "assets/smiley.png"
-      ]);
-      createEmojiBar("flowersRating", "flowers", "assets/flower.png");
     });
 
     document.getElementById("surveyForm").addEventListener("submit", function(e) {
