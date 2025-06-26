@@ -21,11 +21,16 @@
       align-items: center;
       min-height: 100vh;
     }
+    .survey-title-box {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1rem 2rem;
+      margin-top: 1rem;
+      border-radius: 6px;
+      text-align: center;
+    }
     .survey-title {
       font-size: 2rem;
       font-weight: bold;
-      margin: 1rem auto 0.5rem;
-      text-align: center;
       color: #8b0000;
     }
     form {
@@ -35,6 +40,7 @@
       max-width: 700px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       box-sizing: border-box;
+      margin-top: 1rem;
     }
     label {
       display: block;
@@ -107,6 +113,10 @@
       width: 100%;
       height: 100%;
       filter: grayscale(100%);
+      transition: transform 0.2s;
+    }
+    .emoji-container img:hover {
+      transform: scale(1.1);
     }
     .emoji-container.selected img {
       filter: grayscale(0%);
@@ -126,7 +136,9 @@
   </style>
 </head>
 <body>
-  <h1 class="survey-title" id="surveyWeek"></h1>
+  <div class="survey-title-box">
+    <h1 class="survey-title" id="surveyWeek"></h1>
+  </div>
   <form id="surveyForm">
     <div class="page active">
       <label for="lunchDate">What day are you reviewing?</label>
@@ -205,9 +217,30 @@
       document.getElementById("surveyWeek").innerText = `Campus Lunch Survey ${tuesday.toLocaleDateString(undefined, options)}–${thursday.toLocaleDateString(undefined, options)}`;
     }
 
+    function createRatingBar(id, emoji) {
+      const container = document.getElementById(id);
+      for (let i = 1; i <= 5; i++) {
+        const div = document.createElement('div');
+        div.className = 'emoji-container';
+        const img = document.createElement('img');
+        img.src = emoji;
+        div.appendChild(img);
+        div.onclick = () => {
+          [...container.children].forEach((c, index) => {
+            c.classList.toggle('selected', index < i);
+          });
+        };
+        container.appendChild(div);
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       showPage(0);
       setWeekLabel();
+      createRatingBar("tasteRating", "hotdog.png");
+      createRatingBar("temperatureRating", "fire.png");
+      createRatingBar("overallRating", "neutral.png");
+      createRatingBar("flowersRating", "flower.png");
     });
 
     document.getElementById("surveyForm").addEventListener("submit", function(e) {
