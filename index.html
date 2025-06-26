@@ -71,12 +71,14 @@
       z-index: 1;
     }
     .emoji-wrapper img.overlay {
-      clip-path: inset(0 50% 0 0);
       z-index: 2;
       display: none;
     }
     .emoji-wrapper img.full {
-      clip-path: none;
+      display: block;
+    }
+    .emoji-wrapper img.half {
+      clip-path: inset(0 50% 0 0);
       display: block;
     }
     .emoji-wrapper:hover img {
@@ -90,14 +92,14 @@
       color: white;
       border: 1px solid #c4002f;
       font-weight: 600;
-      margin-top: 1.5rem;
+      margin-top: 1rem;
       padding: 10px 16px;
       border-radius: 8px;
       transition: background 0.3s ease, transform 0.2s ease;
       width: 100%;
     }
     textarea {
-      height: 100px;
+      height: 120px;
       resize: vertical;
     }
     button {
@@ -147,7 +149,7 @@
   <form id="survey-form">
     <div class="page active" id="page-1">
       <h2>Lunch Survey</h2>
-      <label for="day">Select the lunch date:</label>
+      <label for="day">What day are you reviewing lunch for?</label>
       <input type="date" id="day" name="day" required />
       <div class="nav-buttons">
         <button type="button" onclick="nextPage(2)">Continue</button>
@@ -169,9 +171,9 @@
     </div>
     <div class="page" id="page-3">
       <label for="memorable">What was something memorable from your meal?</label>
-      <textarea id="memorable" name="memorable"></textarea>
+      <textarea id="memorable" name="memorable" required></textarea>
       <label for="expectations">Was there something that didn't meet your expectations?</label>
-      <textarea id="expectations" name="expectations"></textarea>
+      <textarea id="expectations" name="expectations" required></textarea>
       <div class="nav-buttons">
         <button type="button" onclick="prevPage(2)">Back</button>
         <button type="submit">Submit</button>
@@ -187,25 +189,24 @@
       'overall-rating': ['frown1.png', 'frown2.png', 'neutral.png', 'smile1.png', 'smile2.png']
     };
     const selectedRatings = {};
+
     function renderEmojis() {
       Object.keys(ratings).forEach(id => {
         const container = document.getElementById(id);
         container.innerHTML = '';
         const isCustom = Array.isArray(ratings[id]);
-        const count = 5;
-        for (let i = 1; i <= count; i++) {
+        for (let i = 1; i <= 5; i++) {
           const wrapper = document.createElement('div');
           wrapper.className = 'emoji-wrapper';
           const base = document.createElement('img');
           const overlay = document.createElement('img');
-          base.src = `assets/${isCustom ? ratings[id][i - 1] : ratings[id]}`;
-          overlay.src = base.src;
+          const src = `assets/${isCustom ? ratings[id][i - 1] : ratings[id]}`;
+          base.src = src;
+          overlay.src = src;
           base.classList.add('base');
           overlay.classList.add('overlay');
-          overlay.dataset.index = i;
           wrapper.appendChild(base);
           wrapper.appendChild(overlay);
-          wrapper.dataset.value = i;
           wrapper.addEventListener('click', e => {
             const rect = wrapper.getBoundingClientRect();
             const half = (e.clientX - rect.left) < rect.width / 2;
@@ -215,24 +216,23 @@
         }
       });
     }
+
     function setRating(id, value) {
       selectedRatings[id] = value;
       const container = document.getElementById(id);
       [...container.children].forEach((wrapper, i) => {
         const overlay = wrapper.querySelector('.overlay');
-        const imgVal = i + 1;
-        overlay.classList.remove('full');
-        if (imgVal <= value - 0.25) {
+        overlay.classList.remove('full', 'half');
+        if (i + 1 <= value - 0.25) {
           overlay.classList.add('full');
           overlay.style.clipPath = 'none';
-        } else if (imgVal === Math.ceil(value)) {
-          overlay.classList.add('full');
+        } else if (i + 1 === Math.ceil(value)) {
+          overlay.classList.add('half');
           overlay.style.clipPath = 'inset(0 50% 0 0)';
-        } else {
-          overlay.classList.remove('full');
         }
       });
     }
+
     function nextPage(n) {
       document.querySelector('.page.active').classList.remove('active');
       document.getElementById(`page-${n}`).classList.add('active');
@@ -241,8 +241,8 @@
       document.querySelector('.page.active').classList.remove('active');
       document.getElementById(`page-${n}`).classList.add('active');
     }
-    const form = document.getElementById('survey-form');
-    form.addEventListener('submit', e => {
+
+    document.getElementById('survey-form').addEventListener('submit', e => {
       e.preventDefault();
       const data = {
         day: document.getElementById('day').value,
@@ -259,10 +259,11 @@
         headers: { 'Content-Type': 'application/json' }
       }).then(() => {
         showPopup();
-        form.reset();
+        document.getElementById('survey-form').reset();
         nextPage(1);
       });
     });
+
     function showPopup() {
       document.getElementById('popup').style.display = 'block';
       startConfetti();
@@ -270,10 +271,11 @@
         document.getElementById('popup').style.display = 'none';
       }, 5000);
     }
+
     function startConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
-      let pieces = Array.from({length: 150}, () => ({
+      let pieces = Array.from({ length: 150 }, () => ({
         x: Math.random() * window.innerWidth,
         y: Math.random() * -window.innerHeight,
         size: Math.random() * 6 + 4,
@@ -295,6 +297,7 @@
       draw();
       setTimeout(() => pieces = [], 5000);
     }
+
     renderEmojis();
   </script>
 </body>
