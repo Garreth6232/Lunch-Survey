@@ -44,6 +44,7 @@
       font-size: 1.1rem;
       margin-top: 1rem;
       color: #fff;
+      display: block;
     }
     .emoji-bar {
       display: flex;
@@ -62,8 +63,8 @@
       filter: grayscale(0%) brightness(100%);
     }
     .emoji-bar img.half {
-      filter: grayscale(0%) brightness(85%);
-      clip-path: inset(0 50% 0 0);
+      filter: grayscale(0%) brightness(100%);
+      clip-path: polygon(0 0, 50% 0, 50% 100%, 0% 100%);
     }
     .emoji-bar img:hover {
       transform: scale(1.05);
@@ -77,6 +78,7 @@
       padding: 10px 16px;
       border-radius: 8px;
       transition: background 0.3s ease, transform 0.2s ease;
+      width: 100%;
     }
     textarea {
       height: 100px;
@@ -162,9 +164,6 @@
   </form>
   <div id="popup">Thanks for your feedback! 🎉</div>
   <script>
-    const form = document.getElementById('survey-form');
-    const popup = document.getElementById('popup');
-    const confettiCanvas = document.getElementById('confetti-canvas');
     const ratings = {
       'taste-rating': 'hotdog.png',
       'temp-rating': 'fire.png',
@@ -185,11 +184,12 @@
             container.appendChild(img);
           });
         } else {
-          for (let i = 1; i <= 5; i++) {
+          for (let i = 1; i <= 10; i++) {
             const img = document.createElement('img');
             img.src = `assets/${ratings[id]}`;
-            img.dataset.value = i;
-            img.addEventListener('click', () => setRating(id, i));
+            img.dataset.value = i / 2;
+            img.className = (i % 2 === 0) ? 'half' : '';
+            img.addEventListener('click', () => setRating(id, i / 2));
             container.appendChild(img);
           }
         }
@@ -198,9 +198,14 @@
     function setRating(id, value) {
       selectedRatings[id] = value;
       const container = document.getElementById(id);
-      [...container.children].forEach((img, i) => {
-        img.classList.remove('full');
-        if (i < value) img.classList.add('full');
+      [...container.children].forEach(img => {
+        const val = parseFloat(img.dataset.value);
+        img.classList.remove('full', 'half');
+        if (val <= value - 0.25) {
+          img.classList.add('full');
+        } else if (val <= value) {
+          img.classList.add('half');
+        }
       });
     }
     function nextPage(n) {
@@ -211,40 +216,7 @@
       document.querySelector('.page.active').classList.remove('active');
       document.getElementById(`page-${n}`).classList.add('active');
     }
-    function showPopup() {
-      popup.style.display = 'block';
-      startConfetti();
-      setTimeout(() => {
-        popup.style.display = 'none';
-      }, 5000);
-    }
-    function startConfetti() {
-      const ctx = confettiCanvas.getContext('2d');
-      let pieces = [];
-      for (let i = 0; i < 100; i++) {
-        pieces.push({
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * -window.innerHeight,
-          size: Math.random() * 8 + 4,
-          speed: Math.random() * 3 + 2,
-          color: `hsl(${Math.random() * 360}, 100%, 50%)`
-        });
-      }
-      function draw() {
-        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-        pieces.forEach(p => {
-          ctx.fillStyle = p.color;
-          ctx.fillRect(p.x, p.y, p.size, p.size);
-          p.y += p.speed;
-          if (p.y > window.innerHeight) p.y = 0;
-        });
-        requestAnimationFrame(draw);
-      }
-      confettiCanvas.width = window.innerWidth;
-      confettiCanvas.height = window.innerHeight;
-      draw();
-      setTimeout(() => pieces = [], 5000);
-    }
+    const form = document.getElementById('survey-form');
     form.addEventListener('submit', e => {
       e.preventDefault();
       const data = {
@@ -266,6 +238,38 @@
         nextPage(1);
       });
     });
+    function showPopup() {
+      document.getElementById('popup').style.display = 'block';
+      startConfetti();
+      setTimeout(() => {
+        document.getElementById('popup').style.display = 'none';
+      }, 5000);
+    }
+    function startConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      let pieces = Array.from({length: 150}, () => ({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * -window.innerHeight,
+        size: Math.random() * 6 + 4,
+        speed: Math.random() * 3 + 1,
+        color: `hsl(${Math.random() * 360}, 100%, 60%)`
+      }));
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.x, p.y, p.size, p.size);
+          p.y += p.speed;
+          if (p.y > canvas.height) p.y = 0;
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+      setTimeout(() => pieces = [], 5000);
+    }
     renderEmojis();
   </script>
 </body>
