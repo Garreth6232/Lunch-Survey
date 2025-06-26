@@ -52,22 +52,38 @@
       gap: 0.5rem;
       padding: 0.5rem 0;
     }
-    .emoji-bar img {
+    .emoji-wrapper {
+      position: relative;
       width: 40px;
       height: 40px;
       cursor: pointer;
+    }
+    .emoji-wrapper img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40px;
+      height: 40px;
       transition: transform 0.2s ease;
+    }
+    .emoji-wrapper img.base {
       filter: grayscale(100%) brightness(70%);
+      z-index: 1;
     }
-    .emoji-bar img.full {
-      filter: grayscale(0%) brightness(100%);
+    .emoji-wrapper img.overlay {
+      clip-path: inset(0 50% 0 0);
+      z-index: 2;
+      display: none;
     }
-    .emoji-bar img.half {
-      filter: grayscale(0%) brightness(100%);
-      clip-path: polygon(0 0, 50% 0, 50% 100%, 0% 100%);
+    .emoji-wrapper img.full {
+      clip-path: none;
+      display: block;
     }
-    .emoji-bar img:hover {
-      transform: scale(1.05);
+    .emoji-wrapper:hover img {
+      transform: scale(1.1);
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
     }
     input[type="date"], textarea, button {
       background: #1a1a1a;
@@ -131,7 +147,7 @@
   <form id="survey-form">
     <div class="page active" id="page-1">
       <h2>Lunch Survey</h2>
-      <label for="day">What day of lunch are you reviewing?</label>
+      <label for="day">Select the lunch date:</label>
       <input type="date" id="day" name="day" required />
       <div class="nav-buttons">
         <button type="button" onclick="nextPage(2)">Continue</button>
@@ -175,36 +191,45 @@
       Object.keys(ratings).forEach(id => {
         const container = document.getElementById(id);
         container.innerHTML = '';
-        if (Array.isArray(ratings[id])) {
-          ratings[id].forEach((src, i) => {
-            const img = document.createElement('img');
-            img.src = `assets/${src}`;
-            img.dataset.value = i + 1;
-            img.addEventListener('click', () => setRating(id, i + 1));
-            container.appendChild(img);
+        const isCustom = Array.isArray(ratings[id]);
+        const count = 5;
+        for (let i = 1; i <= count; i++) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'emoji-wrapper';
+          const base = document.createElement('img');
+          const overlay = document.createElement('img');
+          base.src = `assets/${isCustom ? ratings[id][i - 1] : ratings[id]}`;
+          overlay.src = base.src;
+          base.classList.add('base');
+          overlay.classList.add('overlay');
+          overlay.dataset.index = i;
+          wrapper.appendChild(base);
+          wrapper.appendChild(overlay);
+          wrapper.dataset.value = i;
+          wrapper.addEventListener('click', e => {
+            const rect = wrapper.getBoundingClientRect();
+            const half = (e.clientX - rect.left) < rect.width / 2;
+            setRating(id, i - (half ? 0.5 : 0));
           });
-        } else {
-          for (let i = 1; i <= 10; i++) {
-            const img = document.createElement('img');
-            img.src = `assets/${ratings[id]}`;
-            img.dataset.value = i / 2;
-            img.className = (i % 2 === 0) ? 'half' : '';
-            img.addEventListener('click', () => setRating(id, i / 2));
-            container.appendChild(img);
-          }
+          container.appendChild(wrapper);
         }
       });
     }
     function setRating(id, value) {
       selectedRatings[id] = value;
       const container = document.getElementById(id);
-      [...container.children].forEach(img => {
-        const val = parseFloat(img.dataset.value);
-        img.classList.remove('full', 'half');
-        if (val <= value - 0.25) {
-          img.classList.add('full');
-        } else if (val <= value) {
-          img.classList.add('half');
+      [...container.children].forEach((wrapper, i) => {
+        const overlay = wrapper.querySelector('.overlay');
+        const imgVal = i + 1;
+        overlay.classList.remove('full');
+        if (imgVal <= value - 0.25) {
+          overlay.classList.add('full');
+          overlay.style.clipPath = 'none';
+        } else if (imgVal === Math.ceil(value)) {
+          overlay.classList.add('full');
+          overlay.style.clipPath = 'inset(0 50% 0 0)';
+        } else {
+          overlay.classList.remove('full');
         }
       });
     }
