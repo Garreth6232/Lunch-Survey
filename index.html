@@ -251,7 +251,6 @@
         body: new FormData(this),
       }).then(response => {
         if (response.ok) {
-          showPage(3);
           document.getElementById("popup").style.display = "block";
           document.getElementById("confettiVideo").style.display = "block";
         }
