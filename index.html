@@ -217,30 +217,31 @@
       document.getElementById("surveyWeek").innerText = `Campus Lunch Survey ${tuesday.toLocaleDateString(undefined, options)}–${thursday.toLocaleDateString(undefined, options)}`;
     }
 
-    function createRatingBar(id, emoji) {
+    function createRatingBar(id, emojis) {
       const container = document.getElementById(id);
-      for (let i = 1; i <= 5; i++) {
+      container.innerHTML = '';
+      emojis.forEach(src => {
         const div = document.createElement('div');
         div.className = 'emoji-container';
         const img = document.createElement('img');
-        img.src = emoji;
+        img.src = src;
         div.appendChild(img);
         div.onclick = () => {
           [...container.children].forEach((c, index) => {
-            c.classList.toggle('selected', index < i);
+            c.classList.toggle('selected', index <= [...container.children].indexOf(div));
           });
         };
         container.appendChild(div);
-      }
+      });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       showPage(0);
       setWeekLabel();
-      createRatingBar("tasteRating", "hotdog.png");
-      createRatingBar("temperatureRating", "fire.png");
-      createRatingBar("overallRating", "neutral.png");
-      createRatingBar("flowersRating", "flower.png");
+      createRatingBar("tasteRating", ["hotdog.png", "hotdog.png", "hotdog.png", "hotdog.png", "hotdog.png"]);
+      createRatingBar("temperatureRating", ["fire.png", "fire.png", "fire.png", "fire.png", "fire.png"]);
+      createRatingBar("overallRating", ["frown2.png", "frown1.png", "neutral.png", "smile1.png", "smile2.png"]);
+      createRatingBar("flowersRating", ["flower.png", "flower.png", "flower.png", "flower.png", "flower.png"]);
     });
 
     document.getElementById("surveyForm").addEventListener("submit", function(e) {
@@ -258,3 +259,4 @@
   </script>
 </body>
 </html>
+
