@@ -6,6 +6,9 @@
   <title>Lunch Survey</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --dim-overlay: rgba(0, 0, 0, 0.6);
+    }
     body {
       font-family: 'Inter', sans-serif;
       background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/Moda-678x381.jpg') no-repeat center center fixed;
@@ -14,9 +17,16 @@
       padding: 0;
       color: #333;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
+    }
+    .survey-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 1rem auto 0.5rem;
+      text-align: center;
+      color: #8b0000;
     }
     form {
       background-color: rgba(240, 240, 240, 0.95);
@@ -27,14 +37,13 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
     }
     h2 {
-      text-align: center;
-      color: #8b0000;
-      margin-bottom: 2rem;
+      display: none;
     }
     label {
       display: block;
       margin-top: 1.2rem;
       font-weight: 600;
+      text-align: center;
     }
     input[type="date"], textarea {
       width: 100%;
@@ -123,16 +132,24 @@
       filter: grayscale(0%);
     }
     .emoji-container.half img {
-      filter: grayscale(100%);
-      clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+      filter: grayscale(0%);
+      clip-path: inset(0 50% 0 0);
+    }
+    .dim-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--dim-overlay);
+      z-index: 998;
     }
   </style>
 </head>
 <body>
+  <div class="survey-title" id="survey-week"></div>
   <canvas id="confetti-canvas" class="confetti"></canvas>
   <video id="confetti-video" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; object-fit:cover; z-index:1000;" autoplay muted loop playsinline>
     <source src="assets/confetti.mp4" type="video/mp4">
   </video>
+  <div class="dim-overlay" id="dim-overlay" style="display: none;"></div>
   <form id="survey-form" action="https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec" method="POST">
     <div class="page active" id="page-1">
       <h2>Lunch Survey</h2>
@@ -171,19 +188,36 @@
   </form>
   <div id="popup">
     🎉 Thanks for your feedback! 🎉<br>
-    <button onclick="window.close()">Close Page</button>
+    <button id="close-page">Close Page</button>
   </div>
   <script>
+    function getWeekRange() {
+      const today = new Date();
+      const day = today.getDay();
+      const offset = day >= 2 && day <= 4 ? 0 : 7;
+      const base = new Date(today);
+      base.setDate(base.getDate() - ((day + 5) % 7) - offset);
+      const tues = new Date(base);
+      const thurs = new Date(base);
+      tues.setDate(base.getDate());
+      thurs.setDate(base.getDate() + 2);
+      const options = { month: 'numeric', day: 'numeric' };
+      return `${tues.toLocaleDateString(undefined, options)} - ${thurs.toLocaleDateString(undefined, options)}`;
+    }
+    document.getElementById('survey-week').textContent = `Campus Lunch Survey ${getWeekRange()}`;
+
     function showPage(pageNumber) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(`page-${pageNumber}`).classList.add('active');
     }
-
     document.getElementById('btn-next-1').addEventListener('click', () => showPage(2));
     document.getElementById('btn-next-2').addEventListener('click', () => showPage(3));
     document.getElementById('btn-back-2').addEventListener('click', () => showPage(1));
     document.getElementById('btn-back-3').addEventListener('click', () => showPage(2));
-
+    document.getElementById('close-page').addEventListener('click', () => {
+      window.open('', '_self', '');
+      window.close();
+    });
     document.getElementById('survey-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const form = this;
@@ -194,15 +228,13 @@
       });
       form.reset();
       document.getElementById('confirmation').style.display = 'block';
-      showPage(1);
       document.getElementById('popup').style.display = 'block';
       document.getElementById('confetti-video').style.display = 'block';
+      document.getElementById('dim-overlay').style.display = 'block';
     });
-
     function createEmojiRating(containerId, name, emojiPaths) {
       const container = document.getElementById(containerId);
       let currentRating = 0;
-
       for (let i = 0; i < 5; i++) {
         const wrapper = document.createElement('div');
         wrapper.className = 'emoji-container';
@@ -210,28 +242,23 @@
         img.src = Array.isArray(emojiPaths) ? emojiPaths[i] : emojiPaths;
         wrapper.appendChild(img);
         container.appendChild(wrapper);
-
         wrapper.addEventListener('mousemove', (e) => {
           const percent = e.offsetX / wrapper.offsetWidth;
           highlightEmojis(container, i + (percent < 0.5 ? 0.5 : 1));
         });
-
         wrapper.addEventListener('mouseleave', () => {
           highlightEmojis(container, currentRating);
         });
-
         wrapper.addEventListener('click', (e) => {
           const percent = e.offsetX / wrapper.offsetWidth;
           currentRating = i + (percent < 0.5 ? 0.5 : 1);
           highlightEmojis(container, currentRating);
         });
       }
-
       const hiddenInput = document.createElement('input');
       hiddenInput.type = 'hidden';
       hiddenInput.name = name;
       container.appendChild(hiddenInput);
-
       function highlightEmojis(container, rating) {
         const children = container.querySelectorAll('.emoji-container');
         children.forEach((c, i) => {
@@ -245,7 +272,6 @@
         hiddenInput.value = rating;
       }
     }
-
     createEmojiRating('taste-rating', 'taste', 'assets/hotdog.png');
     createEmojiRating('temp-rating', 'temperature', 'assets/fire.png');
     createEmojiRating('flowers-rating', 'flowers', 'assets/flower.png');
