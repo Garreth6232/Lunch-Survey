@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lunch Survey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Poppins', 'Segoe UI', sans-serif;
-      background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('assets/Moda-678x381.jpg') no-repeat center center fixed;
+      background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('assets/Moda-678x381-darkened.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #fdfdfd;
       background-color: #1a1a1a;
@@ -68,19 +69,24 @@
       transform: scale(1.05);
     }
     input[type="date"], textarea, button {
-      background: #c4002f;
+      background: #1a1a1a;
       color: white;
-      border: none;
+      border: 1px solid #c4002f;
       font-weight: 600;
       margin-top: 1.5rem;
       padding: 10px 16px;
-      cursor: pointer;
       border-radius: 8px;
       transition: background 0.3s ease, transform 0.2s ease;
     }
     textarea {
       height: 100px;
       resize: vertical;
+    }
+    button {
+      background: #c4002f;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
     button:hover {
       background: #9c0025;
@@ -120,7 +126,6 @@
 </head>
 <body>
   <canvas id="confetti-canvas" class="confetti"></canvas>
-
   <form id="survey-form">
     <div class="page active" id="page-1">
       <h2>Lunch Survey</h2>
@@ -130,54 +135,43 @@
         <button type="button" onclick="nextPage(2)">Continue</button>
       </div>
     </div>
-
     <div class="page" id="page-2">
       <label>Taste</label>
       <div class="emoji-bar" id="taste-rating"></div>
-
       <label>Temperature</label>
       <div class="emoji-bar" id="temp-rating"></div>
-
       <label>Overall Experience</label>
       <div class="emoji-bar" id="overall-rating"></div>
-
       <label>Give Flowers to the Chefs!</label>
       <div class="emoji-bar" id="flowers-rating"></div>
-
       <div class="nav-buttons">
         <button type="button" onclick="prevPage(1)">Back</button>
         <button type="button" onclick="nextPage(3)">Continue</button>
       </div>
     </div>
-
     <div class="page" id="page-3">
       <label for="memorable">What was something memorable from your meal?</label>
       <textarea id="memorable" name="memorable"></textarea>
-
       <label for="expectations">Was there something that didn't meet your expectations?</label>
       <textarea id="expectations" name="expectations"></textarea>
-
       <div class="nav-buttons">
         <button type="button" onclick="prevPage(2)">Back</button>
         <button type="submit">Submit</button>
       </div>
     </div>
   </form>
-
   <div id="popup">Thanks for your feedback! 🎉</div>
-
   <script>
     const form = document.getElementById('survey-form');
     const popup = document.getElementById('popup');
     const confettiCanvas = document.getElementById('confetti-canvas');
-
     const ratings = {
       'taste-rating': 'hotdog.png',
       'temp-rating': 'fire.png',
       'flowers-rating': 'flower.png',
       'overall-rating': ['frown1.png', 'frown2.png', 'neutral.png', 'smile1.png', 'smile2.png']
     };
-
+    const selectedRatings = {};
     function renderEmojis() {
       Object.keys(ratings).forEach(id => {
         const container = document.getElementById(id);
@@ -201,9 +195,6 @@
         }
       });
     }
-
-    const selectedRatings = {};
-
     function setRating(id, value) {
       selectedRatings[id] = value;
       const container = document.getElementById(id);
@@ -212,17 +203,14 @@
         if (i < value) img.classList.add('full');
       });
     }
-
     function nextPage(n) {
       document.querySelector('.page.active').classList.remove('active');
       document.getElementById(`page-${n}`).classList.add('active');
     }
-
     function prevPage(n) {
       document.querySelector('.page.active').classList.remove('active');
       document.getElementById(`page-${n}`).classList.add('active');
     }
-
     function showPopup() {
       popup.style.display = 'block';
       startConfetti();
@@ -230,7 +218,6 @@
         popup.style.display = 'none';
       }, 5000);
     }
-
     function startConfetti() {
       const ctx = confettiCanvas.getContext('2d');
       let pieces = [];
@@ -258,7 +245,6 @@
       draw();
       setTimeout(() => pieces = [], 5000);
     }
-
     form.addEventListener('submit', e => {
       e.preventDefault();
       const data = {
@@ -280,7 +266,6 @@
         nextPage(1);
       });
     });
-
     renderEmojis();
   </script>
 </body>
