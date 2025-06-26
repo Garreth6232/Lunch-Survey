@@ -220,15 +220,15 @@
     function createRatingBar(id, emojis) {
       const container = document.getElementById(id);
       container.innerHTML = '';
-      emojis.forEach(src => {
+      emojis.forEach((src, index) => {
         const div = document.createElement('div');
         div.className = 'emoji-container';
         const img = document.createElement('img');
         img.src = `assets/${src}`;
         div.appendChild(img);
         div.onclick = () => {
-          [...container.children].forEach((c, index) => {
-            c.classList.toggle('selected', index <= [...container.children].indexOf(div));
+          [...container.children].forEach((c, i) => {
+            c.classList.toggle('selected', i <= index);
           });
         };
         container.appendChild(div);
@@ -251,6 +251,7 @@
         body: new FormData(this),
       }).then(response => {
         if (response.ok) {
+          showPage(3);
           document.getElementById("popup").style.display = "block";
           document.getElementById("confettiVideo").style.display = "block";
         }
