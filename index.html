@@ -8,28 +8,27 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('assets/Moda-678x381.jpg') no-repeat center center fixed;
+      background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/Moda-678x381.jpg') no-repeat center center fixed;
       background-size: cover;
       margin: 0;
       padding: 0;
       color: #333;
-      background-color: #f7f7f7;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
     }
     form {
-      background-color: rgba(255, 255, 255, 0.95);
-      border: 1px solid #ccc;
+      background-color: rgba(240, 240, 240, 0.95);
+      border: 1px solid #aaa;
       padding: 3rem;
       width: 95%;
       max-width: 800px;
-      box-shadow: 0 0 25px rgba(0,0,0,0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
     }
     h2 {
       text-align: center;
-      color: #c0392b;
+      color: #8b0000;
       margin-bottom: 2rem;
     }
     label {
@@ -41,13 +40,14 @@
       width: 100%;
       padding: 14px;
       margin-top: 0.5rem;
-      border: 1px solid #ccc;
-      background: #fff;
-      color: #333;
+      border: 1px solid #888;
+      background: #ddd;
+      color: #222;
       font-size: 1rem;
+      box-sizing: border-box;
     }
     textarea {
-      height: 140px;
+      height: 200px;
     }
     .page { display: none; }
     .page.active { display: block; }
@@ -57,7 +57,7 @@
       margin-top: 2rem;
     }
     button {
-      background-color: #c0392b;
+      background-color: #8b0000;
       color: white;
       border: none;
       padding: 12px 24px;
@@ -67,7 +67,7 @@
       transition: background 0.3s ease;
     }
     button:hover {
-      background-color: #96281b;
+      background-color: #5a0000;
     }
     #popup {
       display: none;
@@ -75,12 +75,19 @@
       top: 40%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: #fff;
+      background: #eee;
       padding: 2rem;
-      border: 2px solid #c0392b;
+      border: 2px solid #8b0000;
       color: #000;
       font-size: 1.3rem;
       z-index: 9999;
+    }
+    #confirmation {
+      display: none;
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #444;
     }
     canvas.confetti {
       position: fixed;
@@ -99,26 +106,28 @@
     }
     .emoji-container {
       position: relative;
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
       cursor: pointer;
     }
     .emoji-container img {
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
     }
-    .emoji-container::after {
+    .emoji-container::before {
       content: "";
       position: absolute;
       top: 0;
       left: 0;
       height: 100%;
-      width: 50%;
-      background-color: rgba(255,255,255,0.5);
-      display: none;
+      background-color: rgba(0,0,0,0.2);
+      z-index: 1;
     }
-    .emoji-container.half::after {
-      display: block;
+    .emoji-container.full::before {
+      width: 0%;
+    }
+    .emoji-container.half::before {
+      width: 50%;
     }
   </style>
 </head>
@@ -157,14 +166,14 @@
         <button type="button" id="btn-back-3">Back</button>
         <button type="submit">Submit</button>
       </div>
+      <div id="confirmation">✔️ Your response was submitted successfully!</div>
     </div>
   </form>
   <div id="popup">🎉 Thanks for your feedback! 🎉</div>
   <script>
     function showPage(pageNumber) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      const target = document.getElementById(`page-${pageNumber}`);
-      if (target) target.classList.add('active');
+      document.getElementById(`page-${pageNumber}`).classList.add('active');
     }
 
     document.getElementById('btn-next-1').addEventListener('click', () => showPage(2));
@@ -177,18 +186,18 @@
       const form = this;
       fetch(form.action, {
         method: 'POST',
+        mode: 'no-cors',
         body: new FormData(form),
-      }).then(response => {
-        if (response.ok) {
-          form.reset();
-          showPage(1);
-          document.getElementById('popup').style.display = 'block';
-          startConfetti();
-          setTimeout(() => {
-            document.getElementById('popup').style.display = 'none';
-          }, 3000);
-        }
       });
+      form.reset();
+      document.getElementById('confirmation').style.display = 'block';
+      showPage(1);
+      document.getElementById('popup').style.display = 'block';
+      startConfetti();
+      setTimeout(() => {
+        document.getElementById('popup').style.display = 'none';
+        document.getElementById('confirmation').style.display = 'none';
+      }, 5000);
     });
 
     function startConfetti() {
@@ -229,15 +238,20 @@
         wrapper.appendChild(img);
 
         wrapper.addEventListener('mousemove', (e) => {
-          const half = e.offsetX < wrapper.offsetWidth / 2;
-          wrapper.classList.toggle('half', half);
+          const percent = e.offsetX / wrapper.offsetWidth;
+          wrapper.classList.remove('half', 'full');
+          if (percent < 0.5) {
+            wrapper.classList.add('half');
+          } else {
+            wrapper.classList.add('full');
+          }
         });
         wrapper.addEventListener('mouseleave', () => {
-          wrapper.classList.remove('half');
+          wrapper.classList.remove('half', 'full');
         });
         wrapper.addEventListener('click', (e) => {
-          const half = e.offsetX < wrapper.offsetWidth / 2;
-          input.value = half ? (i - 0.5) : i;
+          const percent = e.offsetX / wrapper.offsetWidth;
+          input.value = percent < 0.5 ? (i - 0.5) : i;
           input.checked = true;
         });
 
@@ -248,8 +262,7 @@
     createEmojiRating('taste-rating', 'taste', 'assets/hotdog.png');
     createEmojiRating('temp-rating', 'temperature', 'assets/fire.png');
     createEmojiRating('flowers-rating', 'flowers', 'assets/flower.png');
-    createEmojiRating('overall-rating', 'overall', 'assets/face-neutral.png');
+    createEmojiRating('overall-rating', 'overall', 'assets/face-1.png');
   </script>
 </body>
 </html>
-
