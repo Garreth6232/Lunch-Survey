@@ -80,7 +80,7 @@
       border: 2px solid #8b0000;
       color: #000;
       font-size: 1.3rem;
-      z-index: 9999;
+      z-index: 10001;
       text-align: center;
     }
     #popup button {
@@ -130,6 +130,9 @@
 </head>
 <body>
   <canvas id="confetti-canvas" class="confetti"></canvas>
+  <video id="confetti-video" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; object-fit:cover; z-index:1000;" autoplay muted loop playsinline>
+    <source src="assets/confetti.mp4" type="video/mp4">
+  </video>
   <form id="survey-form" action="https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec" method="POST">
     <div class="page active" id="page-1">
       <h2>Lunch Survey</h2>
@@ -193,43 +196,24 @@
       document.getElementById('confirmation').style.display = 'block';
       showPage(1);
       document.getElementById('popup').style.display = 'block';
-      startConfetti();
+      document.getElementById('confetti-video').style.display = 'block';
     });
 
-    function startConfetti() {
-      const canvas = document.getElementById('confetti-canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      for (let i = 0; i < 100; i++) {
-        setTimeout(() => drawConfetti(ctx), i * 15);
-      }
-    }
-
-    function drawConfetti(ctx) {
-      const x = Math.random() * ctx.canvas.width;
-      const y = Math.random() * ctx.canvas.height;
-      const size = Math.random() * 8 + 2;
-      const colors = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db'];
-      ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
-      ctx.fillRect(x, y, size, size);
-    }
-
-    function createEmojiRating(containerId, name, emojiPath) {
+    function createEmojiRating(containerId, name, emojiPaths) {
       const container = document.getElementById(containerId);
       let currentRating = 0;
 
-      for (let i = 1; i <= 5; i++) {
+      for (let i = 0; i < 5; i++) {
         const wrapper = document.createElement('div');
         wrapper.className = 'emoji-container';
         const img = document.createElement('img');
-        img.src = emojiPath;
+        img.src = Array.isArray(emojiPaths) ? emojiPaths[i] : emojiPaths;
         wrapper.appendChild(img);
         container.appendChild(wrapper);
 
         wrapper.addEventListener('mousemove', (e) => {
           const percent = e.offsetX / wrapper.offsetWidth;
-          highlightEmojis(container, i - 1 + (percent < 0.5 ? 0.5 : 1));
+          highlightEmojis(container, i + (percent < 0.5 ? 0.5 : 1));
         });
 
         wrapper.addEventListener('mouseleave', () => {
@@ -238,7 +222,7 @@
 
         wrapper.addEventListener('click', (e) => {
           const percent = e.offsetX / wrapper.offsetWidth;
-          currentRating = i - 1 + (percent < 0.5 ? 0.5 : 1);
+          currentRating = i + (percent < 0.5 ? 0.5 : 1);
           highlightEmojis(container, currentRating);
         });
       }
@@ -265,7 +249,13 @@
     createEmojiRating('taste-rating', 'taste', 'assets/hotdog.png');
     createEmojiRating('temp-rating', 'temperature', 'assets/fire.png');
     createEmojiRating('flowers-rating', 'flowers', 'assets/flower.png');
-    createEmojiRating('overall-rating', 'overall', 'assets/face-1.png');
+    createEmojiRating('overall-rating', 'overall', [
+      'assets/frown1.png',
+      'assets/frown2.png',
+      'assets/neutral.png',
+      'assets/smile1.png',
+      'assets/smile2.png'
+    ]);
   </script>
 </body>
 </html>
