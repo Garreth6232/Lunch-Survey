@@ -2,142 +2,157 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lunch Survey</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Poppins', 'Segoe UI', sans-serif;
-      background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), url('assets/Moda-678x381-darkened.jpg') no-repeat center center fixed;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)), url('assets/Moda-678x381.jpg') no-repeat center center fixed;
       background-size: cover;
-      color: #fdfdfd;
-      background-color: #1a1a1a;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background-color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      margin: 0;
-      padding: 2rem;
     }
+
     form {
-      background: rgba(30, 30, 30, 0.85);
+      background-color: rgba(0, 0, 0, 0.85);
+      border: 2px solid #8B0000;
       padding: 2rem;
-      border-radius: 16px;
-      max-width: 620px;
-      width: 100%;
-      box-shadow: 0 12px 28px rgba(139, 0, 0, 0.6);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 20px #8B0000;
     }
+
     h2 {
       text-align: center;
-      color: #c4002f;
-      margin-bottom: 1.2rem;
-      font-weight: 600;
-      font-size: 1.75rem;
+      color: #ff3c3c;
+      margin-bottom: 1rem;
     }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ff3c3c;
+      background: #1a1a1a;
+      color: white;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 100px;
+    }
+
     .page {
       display: none;
     }
+
     .page.active {
       display: block;
     }
-    label, p {
-      font-size: 1.1rem;
-      margin-top: 1rem;
-      color: #fff;
-      display: block;
-    }
+
     .emoji-bar {
       display: flex;
       justify-content: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
     }
+
     .emoji-wrapper {
       position: relative;
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
       cursor: pointer;
     }
+
     .emoji-wrapper img {
       position: absolute;
       top: 0;
       left: 0;
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
       transition: transform 0.2s ease;
     }
+
     .emoji-wrapper img.base {
-      filter: grayscale(100%) brightness(70%);
+      filter: grayscale(100%) brightness(50%);
       z-index: 1;
     }
+
     .emoji-wrapper img.overlay {
       z-index: 2;
       display: none;
     }
+
     .emoji-wrapper img.full {
       display: block;
     }
+
     .emoji-wrapper img.half {
-      clip-path: inset(0 50% 0 0);
       display: block;
+      clip-path: inset(0 50% 0 0);
     }
+
     .emoji-wrapper:hover img {
       transform: scale(1.1);
     }
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-    }
-    input[type="date"], textarea, button {
-      background: #1a1a1a;
-      color: white;
-      border: 1px solid #c4002f;
-      font-weight: 600;
-      margin-top: 1rem;
-      padding: 10px 16px;
-      border-radius: 8px;
-      transition: background 0.3s ease, transform 0.2s ease;
-      width: 100%;
-    }
-    textarea {
-      height: 120px;
-      resize: vertical;
-    }
-    button {
-      background: #c4002f;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #9c0025;
-      transform: translateY(-2px);
-    }
-    .nav-buttons {
+
+    .buttons {
       display: flex;
       justify-content: space-between;
-      gap: 1rem;
       margin-top: 1.5rem;
     }
+
+    button {
+      background-color: #ff3c3c;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #cc0000;
+    }
+
     #popup {
       display: none;
       position: fixed;
-      top: 50%;
+      top: 40%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: #000;
+      background: #111;
       padding: 2rem;
       border: 2px solid #8B0000;
-      border-radius: 10px;
       color: #fff;
-      font-size: 1.2rem;
-      text-align: center;
-      z-index: 1000;
+      font-size: 1.3rem;
+      z-index: 9999;
+      border-radius: 12px;
     }
+
     canvas.confetti {
       position: fixed;
-      pointer-events: none;
       top: 0;
       left: 0;
+      pointer-events: none;
       width: 100vw;
       height: 100vh;
       z-index: 999;
@@ -151,36 +166,47 @@
       <h2>Lunch Survey</h2>
       <label for="day">What day are you reviewing lunch for?</label>
       <input type="date" id="day" name="day" required />
-      <div class="nav-buttons">
+      <div class="buttons">
+        <span></span>
         <button type="button" onclick="nextPage(2)">Continue</button>
       </div>
     </div>
+
     <div class="page" id="page-2">
       <label>Taste</label>
       <div class="emoji-bar" id="taste-rating"></div>
+
       <label>Temperature</label>
       <div class="emoji-bar" id="temp-rating"></div>
+
       <label>Overall Experience</label>
       <div class="emoji-bar" id="overall-rating"></div>
+
       <label>Give Flowers to the Chefs!</label>
       <div class="emoji-bar" id="flowers-rating"></div>
-      <div class="nav-buttons">
+
+      <div class="buttons">
         <button type="button" onclick="prevPage(1)">Back</button>
         <button type="button" onclick="nextPage(3)">Continue</button>
       </div>
     </div>
+
     <div class="page" id="page-3">
       <label for="memorable">What was something memorable from your meal?</label>
       <textarea id="memorable" name="memorable" required></textarea>
+
       <label for="expectations">Was there something that didn't meet your expectations?</label>
       <textarea id="expectations" name="expectations" required></textarea>
-      <div class="nav-buttons">
+
+      <div class="buttons">
         <button type="button" onclick="prevPage(2)">Back</button>
         <button type="submit">Submit</button>
       </div>
     </div>
   </form>
-  <div id="popup">Thanks for your feedback! 🎉</div>
+
+  <div id="popup">🎉 Thanks for your feedback! 🎉</div>
+
   <script>
     const ratings = {
       'taste-rating': 'hotdog.png',
@@ -188,6 +214,7 @@
       'flowers-rating': 'flower.png',
       'overall-rating': ['frown1.png', 'frown2.png', 'neutral.png', 'smile1.png', 'smile2.png']
     };
+
     const selectedRatings = {};
 
     function renderEmojis() {
@@ -198,20 +225,23 @@
         for (let i = 1; i <= 5; i++) {
           const wrapper = document.createElement('div');
           wrapper.className = 'emoji-wrapper';
+
+          const src = `assets/${isCustom ? ratings[id][i - 1] : ratings[id]}`;
           const base = document.createElement('img');
           const overlay = document.createElement('img');
-          const src = `assets/${isCustom ? ratings[id][i - 1] : ratings[id]}`;
           base.src = src;
           overlay.src = src;
           base.classList.add('base');
           overlay.classList.add('overlay');
           wrapper.appendChild(base);
           wrapper.appendChild(overlay);
+
           wrapper.addEventListener('click', e => {
             const rect = wrapper.getBoundingClientRect();
-            const half = (e.clientX - rect.left) < rect.width / 2;
-            setRating(id, i - (half ? 0.5 : 0));
+            const isHalf = (e.clientX - rect.left) < rect.width / 2;
+            setRating(id, i - (isHalf ? 0.5 : 0));
           });
+
           container.appendChild(wrapper);
         }
       });
@@ -237,6 +267,7 @@
       document.querySelector('.page.active').classList.remove('active');
       document.getElementById(`page-${n}`).classList.add('active');
     }
+
     function prevPage(n) {
       document.querySelector('.page.active').classList.remove('active');
       document.getElementById(`page-${n}`).classList.add('active');
@@ -253,10 +284,15 @@
         memorable: document.getElementById('memorable').value,
         expectations: document.getElementById('expectations').value
       };
+
+      const formData = new FormData();
+      for (const key in data) {
+        formData.append(key, data[key]);
+      }
+
       fetch('https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec', {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
+        body: formData
       }).then(() => {
         showPopup();
         document.getElementById('survey-form').reset();
@@ -269,33 +305,36 @@
       startConfetti();
       setTimeout(() => {
         document.getElementById('popup').style.display = 'none';
-      }, 5000);
+      }, 4000);
     }
 
     function startConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
       let pieces = Array.from({ length: 150 }, () => ({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * -window.innerHeight,
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height,
         size: Math.random() * 6 + 4,
         speed: Math.random() * 3 + 1,
         color: `hsl(${Math.random() * 360}, 100%, 60%)`
       }));
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        pieces.forEach(p => {
+        for (const p of pieces) {
           ctx.fillStyle = p.color;
           ctx.fillRect(p.x, p.y, p.size, p.size);
           p.y += p.speed;
           if (p.y > canvas.height) p.y = 0;
-        });
+        }
         requestAnimationFrame(draw);
       }
+
       draw();
-      setTimeout(() => pieces = [], 5000);
+      setTimeout(() => (pieces = []), 5000);
     }
 
     renderEmojis();
