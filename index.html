@@ -139,7 +139,7 @@
   <div class="survey-title-box">
     <h1 class="survey-title" id="surveyWeek"></h1>
   </div>
-  <form id="surveyForm" method="POST" action="https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec" target="hidden_iframe" onsubmit="submitted=true;">
+  <form id="surveyForm">
     <div class="page active">
       <label for="lunchDate">What day are you reviewing?</label>
       <input type="date" id="lunchDate" name="lunchDate" required />
@@ -150,12 +150,20 @@
     <div class="page">
       <label>Taste</label>
       <div class="emoji-bar" id="tasteRating"></div>
+      <input type="hidden" name="tasteRating" id="tasteRatingInput">
+
       <label>Temperature</label>
       <div class="emoji-bar" id="temperatureRating"></div>
+      <input type="hidden" name="temperatureRating" id="temperatureRatingInput">
+
       <label>Overall Experience</label>
       <div class="emoji-bar" id="overallRating"></div>
+      <input type="hidden" name="overallRating" id="overallRatingInput">
+
       <label>Flowers for the Chefs</label>
       <div class="emoji-bar" id="flowersRating"></div>
+      <input type="hidden" name="flowersRating" id="flowersRatingInput">
+
       <div class="buttons">
         <button type="button" onclick="prevPage()">Back</button>
         <button type="button" onclick="nextPage()">Continue</button>
@@ -172,18 +180,19 @@
       </div>
     </div>
   </form>
-  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
   <div id="popup">
     Thank you for submitting!<br/>
     <button onclick="window.close()">Close Page</button>
   </div>
+
   <video class="confetti-video" id="confettiVideo" autoplay muted loop>
     <source src="assets/confetti.mp4" type="video/mp4" />
   </video>
+
   <script>
     let currentPage = 0;
     const pages = document.querySelectorAll(".page");
-    let submitted = false;
 
     function showPage(index) {
       pages.forEach((page, i) => {
@@ -216,8 +225,9 @@
       document.getElementById("surveyWeek").innerText = `Campus Lunch Survey ${tuesday.toLocaleDateString(undefined, options)}–${thursday.toLocaleDateString(undefined, options)}`;
     }
 
-    function createRatingBar(id, emojis) {
+    function createRatingBar(id, emojis, inputId) {
       const container = document.getElementById(id);
+      const hiddenInput = document.getElementById(inputId);
       container.innerHTML = '';
       emojis.forEach((src, index) => {
         const div = document.createElement('div');
@@ -229,6 +239,7 @@
           [...container.children].forEach((c, i) => {
             c.classList.toggle('selected', i <= index);
           });
+          hiddenInput.value = index + 1;
         };
         container.appendChild(div);
       });
@@ -237,22 +248,23 @@
     document.addEventListener("DOMContentLoaded", () => {
       showPage(0);
       setWeekLabel();
-      createRatingBar("tasteRating", ["hotdog.png", "hotdog.png", "hotdog.png", "hotdog.png", "hotdog.png"]);
-      createRatingBar("temperatureRating", ["fire.png", "fire.png", "fire.png", "fire.png", "fire.png"]);
-      createRatingBar("overallRating", ["frown2.png", "frown1.png", "neutral.png", "smile1.png", "smile2.png"]);
-      createRatingBar("flowersRating", ["flower.png", "flower.png", "flower.png", "flower.png", "flower.png"]);
+      createRatingBar("tasteRating", ["hotdog.png", "hotdog.png", "hotdog.png", "hotdog.png", "hotdog.png"], "tasteRatingInput");
+      createRatingBar("temperatureRating", ["fire.png", "fire.png", "fire.png", "fire.png", "fire.png"], "temperatureRatingInput");
+      createRatingBar("overallRating", ["frown2.png", "frown1.png", "neutral.png", "smile1.png", "smile2.png"], "overallRatingInput");
+      createRatingBar("flowersRating", ["flower.png", "flower.png", "flower.png", "flower.png", "flower.png"], "flowersRatingInput");
     });
 
-    window.addEventListener("load", function() {
-      const form = document.getElementById("surveyForm");
-      const iframe = document.getElementById("hidden_iframe");
-      iframe.onload = function() {
-        if (submitted) {
+    document.getElementById("surveyForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      fetch("https://script.google.com/macros/s/AKfycbxK3oJjiUjfQQUEjzjY0b9tNV-QWnwCa_eay0udbhWG3hxX0zMObC6mvB_5G4JuCRIjog/exec", {
+        method: "POST",
+        body: new FormData(this),
+      }).then(response => {
+        if (response.ok) {
           document.getElementById("popup").style.display = "block";
           document.getElementById("confettiVideo").style.display = "block";
-          submitted = false;
         }
-      };
+      });
     });
   </script>
 </body>
