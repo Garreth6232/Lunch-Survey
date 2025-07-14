@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Campus Lunch Survey</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+        rel="stylesheet"/>
   <style>
-    /* Box-model & theme variables */
+    /*--------------------------
+      Box-model & theme vars
+    ---------------------------*/
     *, *::before, *::after { box-sizing: border-box; }
     :root {
       --primary: #8b0000;
@@ -44,12 +47,11 @@
       text-align: center;
       margin-bottom: 1rem;
     }
-
     .survey-title {
+      margin: 0;
       font-size: 1.75rem;
       font-weight: 600;
       color: var(--primary);
-      margin: 0;
     }
 
     form {
@@ -61,9 +63,9 @@
 
     label, legend {
       display: block;
-      font-weight: 600;
       margin-top: 1.5rem;
       text-align: center;
+      font-weight: 600;
       font-size: 1rem;
     }
 
@@ -74,11 +76,10 @@
       margin-top: 0.5rem;
       border: 1px solid #888;
       background: #f9f9f9;
-      color: #222;
-      font-size: 1rem;
       border-radius: 4px;
+      font-size: 1rem;
+      color: #222;
     }
-
     textarea {
       min-height: 120px;
       resize: vertical;
@@ -94,22 +95,19 @@
       flex-wrap: wrap;
       margin-top: 2rem;
     }
-
     button {
       background: var(--primary);
       color: #fff;
       border: none;
       padding: 0.75rem 1.5rem;
-      font-weight: 600;
       font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
       min-width: 120px;
       border-radius: 4px;
       transition: background 0.3s;
     }
-    button:hover {
-      background: var(--primary-hover);
-    }
+    button:hover { background: var(--primary-hover); }
 
     /* Rating buttons & labels */
     button.emoji-container {
@@ -134,20 +132,12 @@
       filter: grayscale(100%);
       transition: transform 0.2s, filter 0.2s;
     }
-    .emoji-container:hover img {
-      transform: scale(1.1);
-    }
-    .emoji-container.selected img {
-      filter: none;
-    }
+    .emoji-container:hover img { transform: scale(1.1); }
+    .emoji-container.selected img { filter: none; }
 
-    /* remove focus outline from emoji buttons */
-    button.emoji-container:focus {
-      outline: none;
-    }
-    button.emoji-container::-moz-focus-inner {
-      border: 0;
-    }
+    /* remove focus outline from emojis */
+    button.emoji-container:focus { outline: none; }
+    button.emoji-container::-moz-focus-inner { border: 0; }
 
     .emoji-label {
       font-size: 0.75rem;
@@ -160,16 +150,15 @@
       display: none;
       position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      background: #fff; padding: 2rem;
+      background: #fff;
+      padding: 2rem;
       border: 2px solid var(--primary);
       border-radius: 6px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      text-align: center; z-index: 10001;
+      text-align: center;
+      z-index: 10001;
     }
-    #popup .buttons {
-      justify-content: center;
-      margin-top: 1rem;
-    }
+    #popup .buttons { justify-content: center; margin-top: 1rem; }
     .confetti-video {
       display: none;
       position: fixed; top: 0; left: 0;
@@ -197,22 +186,22 @@
 
       <!-- Page 2: Ratings -->
       <section class="page">
-        <fieldset class="rating-group">
+        <fieldset>
           <legend>Taste</legend>
           <div class="emoji-bar" id="tasteRating"></div>
           <input type="hidden" id="tasteRatingInput" name="tasteRating" data-label="Taste" required>
         </fieldset>
-        <fieldset class="rating-group">
+        <fieldset>
           <legend>Temperature</legend>
           <div class="emoji-bar" id="temperatureRating"></div>
           <input type="hidden" id="temperatureRatingInput" name="temperatureRating" data-label="Temperature" required>
         </fieldset>
-        <fieldset class="rating-group">
-          <legend>Overall Experience</legend>
+        <fieldset>
+          <legend>Overall</legend>
           <div class="emoji-bar" id="overallRating"></div>
           <input type="hidden" id="overallRatingInput" name="overallRating" data-label="Overall Experience" required>
         </fieldset>
-        <fieldset class="rating-group">
+        <fieldset>
           <legend>Flowers for the Chefs</legend>
           <div class="emoji-bar" id="flowersRating"></div>
           <input type="hidden" id="flowersRatingInput" name="flowersRating" data-label="Flowers for the Chefs" required>
@@ -223,12 +212,12 @@
         </div>
       </section>
 
-      <!-- Page 3: Feedback -->
+      <!-- Page 3: Free-text -->
       <section class="page">
-        <label for="memorable">What was something memorable from your meal?</label>
+        <label for="memorable">What was memorable?</label>
         <textarea id="memorable" name="memorable" required></textarea>
 
-        <label for="expectations">Was there something that didn't meet your expectations?</label>
+        <label for="expectations">Anything below expectations?</label>
         <textarea id="expectations" name="expectations" required></textarea>
 
         <div class="buttons">
@@ -238,16 +227,18 @@
       </section>
     </form>
 
+    <!-- Thank-you popup -->
     <div id="popup">
-      🎉 Thank you for submitting!<br><br>
+      🎉 Thank you for submitting!<br/><br/>
       <div class="buttons">
         <button type="button" onclick="reviewAnother()">I’m reviewing another day</button>
         <button type="button" onclick="closePopup()">Close</button>
       </div>
     </div>
 
+    <!-- Confetti overlay -->
     <video class="confetti-video" id="confettiVideo" preload="auto" autoplay muted loop playsinline>
-      <source src="assets/confetti.mp4" type="video/mp4">
+      <source src="assets/confetti.mp4" type="video/mp4"/>
     </video>
   </main>
 
@@ -255,132 +246,122 @@
   (function(){
     'use strict';
 
+    // state & elements
     let currentPage = 0;
-    const pages = document.querySelectorAll('.page');
-    const form = document.getElementById('surveyForm');
+    const pages     = document.querySelectorAll('.page');
+    const form      = document.getElementById('surveyForm');
     const dateInput = document.getElementById('lunchDate');
 
-    function showPage(i){
-      pages.forEach((p,idx)=>p.classList.toggle('active', idx===i));
+    // show/hide pages
+    function showPage(i) {
+      pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
       currentPage = i;
-      // auto-focus & open date picker on page 0
-      if(i === 0){
+      if (i === 0) {
         dateInput.focus();
-        if(typeof dateInput.showPicker === 'function'){
+        // modern browsers only:
+        if (typeof dateInput.showPicker === 'function') {
           dateInput.showPicker();
         }
       }
     }
 
-    window.nextPage = function(){
-      if(currentPage === 1){
-        const hidden = pages[1].querySelectorAll('input[type="hidden"]');
-        for(const hi of hidden){
-          if(!hi.value){
-            alert(`Please select a rating for ${hi.dataset.label}.`);
-            return;
+    // next/back
+    window.nextPage = () => {
+      if (currentPage === 1) {
+        // ensure all ratings chosen
+        for (let hi of pages[1].querySelectorAll('input[type="hidden"]')) {
+          if (!hi.value) {
+            return alert(`Please select a rating for ${hi.dataset.label}.`);
           }
         }
       }
-      const fields = pages[currentPage].querySelectorAll('input:not([type="hidden"]):not([type="button"]), textarea');
-      for(const f of fields){
-        if(!f.checkValidity()){
+      // validate required
+      for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]), textarea')) {
+        if (!f.checkValidity()) {
           f.reportValidity();
           return;
         }
       }
-      if(currentPage < pages.length - 1) showPage(currentPage + 1);
+      if (currentPage < pages.length - 1) showPage(currentPage + 1);
     };
+    window.prevPage = () => { if (currentPage > 0) showPage(currentPage - 1); };
 
-    window.prevPage = function(){
-      if(currentPage > 0) showPage(currentPage - 1);
-    };
-
-    window.closePopup = function(){
+    // popup handlers
+    window.closePopup = () => {
       document.getElementById('popup').style.display = 'none';
       document.getElementById('confettiVideo').style.display = 'none';
       form.reset();
       setWeekLabel();
       showPage(0);
     };
+    window.reviewAnother = () => { closePopup(); /* showPage(0) auto-opens picker */ };
 
-    window.reviewAnother = function(){
-      closePopup();
-      // will auto-open by showPage(0)
-    };
-
-    function setWeekLabel(){
-      const now = new Date();
-      const day = now.getDay();
-      const diff = day < 2 ? day + 5 : day - 2;
-      const tues = new Date(now); tues.setDate(now.getDate() - diff);
-      const thurs = new Date(tues); thurs.setDate(tues.getDate() + 2);
-      const opts = { month:'numeric', day:'numeric' };
-      document.getElementById('surveyWeek').innerText =
-        `Campus Lunch Survey ${tues.toLocaleDateString(undefined,opts)}–${thurs.toLocaleDateString(undefined,opts)}`;
-
-      dateInput.min = tues.toISOString().split('T')[0];
-      dateInput.max = thurs.toISOString().split('T')[0];
+    // compute & set week label + bounds
+    function setWeekLabel() {
+      const now = new Date(),
+            day = now.getDay(),
+            diff = day < 2 ? day + 5 : day - 2,
+            tues = new Date(now.setDate(now.getDate() - diff)),
+            thurs = new Date(tues).setDate(tues.getDate() + 2),
+            opts = { month:'numeric', day:'numeric' },
+            label = document.getElementById('surveyWeek');
+      label.innerText = `Campus Lunch Survey ${new Date(tues).toLocaleDateString(undefined,opts)}–${new Date(thurs).toLocaleDateString(undefined,opts)}`;
+      dateInput.min = new Date(tues).toISOString().slice(0,10);
+      dateInput.max = new Date(thurs).toISOString().slice(0,10);
     }
 
-    function createRatingBar(id, icons, hid){
-      const ctr = document.getElementById(id);
-      const hidden = document.getElementById(hid);
+    // build emoji bars
+    function createRatingBar(id, icons, hid) {
+      const ctr = document.getElementById(id),
+            hidden = document.getElementById(hid);
       ctr.innerHTML = '';
-      icons.forEach((icon,idx)=>{
+      icons.forEach((icon, idx) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'emoji-container';
-        btn.setAttribute('aria-label', `${hidden.dataset.label} ${idx+1} of ${icons.length}`);
-
+        btn.setAttribute('aria-label', `${hidden.dataset.label} ${idx+1}`);
         const img = document.createElement('img');
         img.src = `assets/${icon}`;
         img.alt = '';
         img.loading = 'lazy';
-
-        const label = document.createElement('div');
-        label.className = 'emoji-label';
-        label.innerText = idx + 1;
-
-        btn.append(img, label);
-        btn.addEventListener('click',()=>{
-          Array.from(ctr.children).forEach((c,i)=>c.classList.toggle('selected', i<=idx));
+        const lbl = document.createElement('div');
+        lbl.className = 'emoji-label';
+        lbl.innerText = idx + 1;
+        btn.append(img, lbl);
+        btn.addEventListener('click', () => {
+          ctr.childNodes.forEach((c,i) => c.classList.toggle('selected', i <= idx));
           hidden.value = idx+1;
         });
-
         ctr.append(btn);
       });
     }
 
-    form.addEventListener('submit',function(e){
+    // form submit
+    form.addEventListener('submit', e => {
       e.preventDefault();
       fetch('https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec', {
         method: 'POST',
         body: new FormData(form)
       })
-      .then(res=>{
-        if(!res.ok) throw new Error(`Status ${res.status}`);
-        return res.text();
-      })
-      .then(()=>{
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.text() })
+      .then(() => {
         document.getElementById('popup').style.display = 'block';
         document.getElementById('confettiVideo').style.display = 'block';
       })
-      .catch(err=>{
-        console.error('Submission error:', err);
-        alert('Oops, something went wrong. Please try again.');
+      .catch(err => {
+        console.error(err);
+        alert('Oops—submission failed.');
       });
     });
 
-    document.addEventListener('DOMContentLoaded',()=>{
-      setWeekLabel();
-      createRatingBar('tasteRating',       ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'],       'tasteRatingInput');
-      createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'],             'temperatureRatingInput');
-      createRatingBar('overallRating',     ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
-      createRatingBar('flowersRating',     ['flower.png','flower.png','flower.png','flower.png','flower.png'],   'flowersRatingInput');
-      // open picker on initial load
-      showPage(0);
-    });
+    // INITIALIZE
+    setWeekLabel();
+    createRatingBar('tasteRating',       ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'],       'tasteRatingInput');
+    createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'],             'temperatureRatingInput');
+    createRatingBar('overallRating',     ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
+    createRatingBar('flowersRating',     ['flower.png','flower.png','flower.png','flower.png','flower.png'],   'flowersRatingInput');
+    showPage(0);
+
   })();
   </script>
 </body>
