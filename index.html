@@ -103,7 +103,11 @@
       flex-wrap: wrap;
       margin-top: 2rem;
     }
+
+    /* Base button styles + sheen */
     button {
+      position: relative;
+      overflow: hidden;
       background: var(--primary);
       color: #fff;
       border: none;
@@ -117,6 +121,30 @@
     }
     button:hover { background: var(--primary-hover); }
 
+    /* sheen effect */
+    button::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: -75%;
+      width: 50%;
+      height: 200%;
+      background: rgba(255,255,255,0.3);
+      transform: rotate(25deg);
+      transition: all 0.6s ease;
+      pointer-events: none;
+    }
+    button:hover::before {
+      top: 100%;
+      left: 125%;
+    }
+
+    /* loading state */
+    button.loading {
+      opacity: 0.7;
+      cursor: default;
+    }
+
     /* Rating buttons & labels */
     button.emoji-container {
       background: none;
@@ -126,6 +154,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
     }
     .emoji-bar {
       display: flex;
@@ -142,6 +171,12 @@
     }
     .emoji-container:hover img { transform: scale(1.1); }
     .emoji-container.selected img { filter: none; }
+
+    /* float on hover */
+    .emoji-container:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
 
     /* remove focus outline from emojis */
     button.emoji-container:focus { outline: none; }
@@ -254,7 +289,7 @@
   (function(){
     'use strict';
 
-    // Cached DOM
+    // DOM references
     const form       = document.getElementById('surveyForm'),
           dateInput  = document.getElementById('lunchDate'),
           pages      = document.querySelectorAll('.page'),
@@ -268,13 +303,12 @@
       currentPage = i;
       if (i === 0) {
         dateInput.focus();
-        if (typeof dateInput.showPicker === 'function') dateInput.showPicker();
+        dateInput.showPicker?.();
       }
     }
 
     // Next / Prev
     window.nextPage = () => {
-      // rating-page validation
       if (currentPage === 1) {
         for (let hi of pages[1].querySelectorAll('input[type="hidden"]')) {
           if (!hi.value) {
@@ -282,7 +316,6 @@
           }
         }
       }
-      // default validation
       for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]),textarea')) {
         if (!f.checkValidity()) { f.reportValidity(); return; }
       }
@@ -290,7 +323,7 @@
     };
     window.prevPage = () => { if (currentPage > 0) showPage(currentPage - 1); };
 
-    // Close popup & reset form + confetti
+    // Close/reset popup & confetti
     window.closePopup = () => {
       popup.style.display = 'none';
       confetti.pause();
@@ -302,19 +335,17 @@
     };
     window.reviewAnother = window.closePopup;
 
-    // Set the week label & date picker bounds
+    // Week label & date bounds
     function setWeekLabel() {
       const today = new Date(),
             dow   = today.getDay(),
             diff  = dow < 2 ? dow + 5 : dow - 2;
 
-      // compute Tuesday and Thursday
       const tuesday  = new Date(today.getTime());
       tuesday.setDate(tuesday.getDate() - diff);
       const thursday = new Date(tuesday.getTime());
       thursday.setDate(thursday.getDate() + 2);
 
-      // formatting helpers
       const fmt = d => d.toLocaleDateString(undefined, { month:'numeric', day:'numeric' });
       const iso = d => d.toISOString().slice(0,10);
 
@@ -325,7 +356,7 @@
       dateInput.max = iso(thursday);
     }
 
-    // Build each emoji-rating bar
+    // Build emoji bars
     function createRatingBar(barId, icons, hiddenId) {
       const ctr    = document.getElementById(barId),
             hidden = document.getElementById(hiddenId);
@@ -346,13 +377,10 @@
         lbl.className = 'emoji-label';
         lbl.innerText = idx + 1;
 
-        // click handler
         btn.addEventListener('click', () => {
           Array.from(ctr.children).forEach((c,i) => c.classList.toggle('selected', i <= idx));
           hidden.value = idx + 1;
         });
-
-        // keyboard navigation
         btn.addEventListener('keydown', e => {
           if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) {
             btn.click();
@@ -371,25 +399,26 @@
       });
     }
 
-    // Submit handler
+    // Optimistic submit
     form.addEventListener('submit', e => {
       e.preventDefault();
-      fetch('https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec', {
-        method: 'POST',
-        body: new FormData(form)
-      })
-      .then(r => {
-        if (!r.ok) throw new Error(r.status);
-        return r.text();
-      })
-      .then(() => {
-        popup.style.display = 'block';
-        confetti.style.display = 'block';
-      })
-      .catch(err => {
-        console.error(err);
-        alert('Oops—submission failed. Please check your connection and try again.');
-      });
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('loading');
+      submitBtn.innerText = 'Submitting…';
+
+      // Show popup & confetti immediately
+      popup.style.display = 'block';
+      confetti.style.display = 'block';
+
+      // Send in background
+      const endpoint = 'https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec';
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(endpoint, new FormData(form));
+      } else {
+        fetch(endpoint, { method: 'POST', body: new FormData(form) })
+          .catch(err => console.error('Submission failed:', err));
+      }
     });
 
     // Initialize
@@ -399,7 +428,6 @@
     createRatingBar('overallRating',     ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
     createRatingBar('flowersRating',     ['flower.png','flower.png','flower.png','flower.png','flower.png'],   'flowersRatingInput');
     showPage(0);
-
   })();
   </script>
 </body>
