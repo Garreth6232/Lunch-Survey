@@ -8,29 +8,30 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
     rel="stylesheet"/>
   <style>
-    /*--------------------------
-      Box-model & theme vars
-    ---------------------------*/
-    *, *::before, *::after { box-sizing: border-box; }
+    /*----------------------------
+      Theme & Global Styles
+    -----------------------------*/
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --primary: #8b0000;
-      --primary-hover: #5a0000;
-      --overlay: rgba(0,0,0,0.6);
-      --bg-light: rgba(255,255,255,0.9);
-      --text: #333;
-      --label-color: #555;
+      --primary-hover: #b30000;
+      --overlay: rgba(0,0,0,0.75);       /* darker overlay for contrast */
+      --bg-light: rgba(255,255,255,0.95); /* crisper panel */
+      --text: #fff;                       /* light text */
+      --text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+      --label-color: #eee;
 
-      /* Button shine */
+      /* button shine & lift */
+      --button-lift: -4px;
+      --button-shadow: 0 6px 12px rgba(0,0,0,0.2);
       --shine-color: rgba(255,255,255,0.4);
       --shine-duration: 0.7s;
-      --button-lift: -4px;
-      --button-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
 
     body {
-      margin: 0;
       font-family: 'Inter', sans-serif;
       color: var(--text);
+      text-shadow: var(--text-shadow);
       background:
         linear-gradient(var(--overlay), var(--overlay)),
         url('assets/modabackground.png') no-repeat center center fixed;
@@ -42,7 +43,10 @@
       padding: 1rem;
     }
 
-    main { width: 100%; max-width: 700px; }
+    main {
+      width: 100%;
+      max-width: 700px;
+    }
 
     header.survey-title-box {
       background: var(--bg-light);
@@ -50,12 +54,13 @@
       border-radius: 8px;
       text-align: center;
       margin-bottom: 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .survey-title {
-      margin: 0;
       font-size: 1.75rem;
       font-weight: 600;
       color: var(--primary);
+      text-shadow: none;
     }
 
     form {
@@ -71,16 +76,17 @@
       text-align: center;
       font-weight: 600;
       font-size: 1rem;
+      color: var(--text);
+      text-shadow: var(--text-shadow);
     }
 
-    fieldset { border: none; margin: 0; padding: 0; }
-
-    input[type="date"], textarea {
+    input[type="date"],
+    textarea {
       width: 100%;
       padding: 0.75rem;
       margin-top: 0.5rem;
-      border: 1px solid #888;
-      background: #f9f9f9;
+      border: 1px solid #aaa;
+      background: #fff;
       border-radius: 4px;
       font-size: 1rem;
       color: #222;
@@ -123,8 +129,6 @@
       cursor: default;
       pointer-events: none;
     }
-
-    /* Sheen pseudo-element */
     button::before {
       content: '';
       position: absolute;
@@ -139,19 +143,14 @@
         transparent 100%
       );
       transform: translateX(-100%) translateY(-100%) rotate(30deg);
-      transition: none;
       pointer-events: none;
     }
     button:hover::before {
       animation: buttonSheen var(--shine-duration) ease-out forwards;
     }
     @keyframes buttonSheen {
-      from {
-        transform: translateX(-100%) translateY(-100%) rotate(30deg);
-      }
-      to {
-        transform: translateX(100%) translateY(100%) rotate(30deg);
-      }
+      from { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
+      to   { transform: translateX(100%) translateY(100%) rotate(30deg); }
     }
 
     /* —— EMOJI CONTAINERS —— */
@@ -166,16 +165,20 @@
       border: none;
       padding: 0;
       margin: 0;
+      cursor: pointer;
     }
     .emoji-container img {
+      display: block;
       width: 6vw;
       max-width: 60px;
       min-width: 40px;
       filter: grayscale(100%);
       transition: filter 0.2s ease;
+      /* floating drop-shadow */
+      filter: grayscale(100%) drop-shadow(0 2px 6px rgba(0,0,0,0.3));
     }
     .emoji-container.selected img {
-      filter: none;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
     }
 
     /* Popup & confetti */
@@ -343,6 +346,7 @@
         btn.type = 'button';
         btn.className = 'emoji-container';
         btn.setAttribute('aria-label', `${hidden.dataset.label} ${idx+1}`);
+        btn.tabIndex = 0;
 
         const img = document.createElement('img');
         img.src = `assets/${icon}`;
