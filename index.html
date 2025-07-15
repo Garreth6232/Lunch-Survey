@@ -19,8 +19,8 @@
       --label-color: #555;
       --radius: 4px;
       --transition: 0.3s;
-      --emoji-min: 40px;
-      --emoji-max: 60px;
+      --emoji-size: 50px;
+      --shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
     html {
@@ -127,36 +127,45 @@
     /* Rating Styles */
     .emoji-bar {
       display: flex;
-      justify-content: space-evenly;
-      flex-wrap: wrap;
-      gap: 0.5rem;
+      justify-content: space-around;
+      align-items: center;
+      gap: 1rem;
       margin: 1rem 0;
-      padding: 0 0.5rem;
+      padding: 0;
+      overflow: hidden;
     }
     .emoji-container {
-      background: var(--bg-light);
-      border-radius: var(--radius);
-      padding: 0.5rem;
-      flex: 1;
-      max-width: var(--emoji-max);
-      text-align: center;
-      transition: background var(--transition);
+      background: transparent;
+      border: none;
+      padding: 0;
+      flex: none;
+      width: var(--emoji-size);
+      height: var(--emoji-size);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: var(--shadow);
+      border-radius: 50%;
     }
-    .emoji-container.selected, .emoji-container:hover {
-      background: rgba(139,0,0,0.1);
-    }
+    .emoji-container:hover { transform: translateY(-4px); }
     .emoji-container img {
-      width: clamp(var(--emoji-min), 10vw, var(--emoji-max));
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       filter: grayscale(100%);
-      transition: transform 0.2s, filter 0.2s;
-      display: block;
-      margin: auto;
+      transition: filter var(--transition);
     }
-    .emoji-container.selected img { filter: none; transform: scale(1.1); }
-    .emoji-label {
-      font-size: 0.75rem;
-      color: var(--label-color);
-      margin-top: 0.25rem;
+    .emoji-container.selected img { filter: none; }
+
+    /* Mobile sliding */
+    @media (max-width: 480px) {
+      .emoji-bar {
+        overflow-x: auto;
+        padding: 0 0.5rem;
+      }
+      .emoji-container {
+        margin-right: 0.5rem;
+      }
     }
 
     /* Popup & Confetti */
@@ -187,7 +196,6 @@
       form { padding: 1.5rem 0.5rem; }
       .survey-title { font-size: 1.5rem; }
       .buttons { flex-direction: column; }
-      .emoji-bar { gap: 0.25rem; padding: 0; }
     }
   </style>
 </head>
@@ -321,9 +329,7 @@
           btn.setAttribute('aria-label', `${hidden.dataset.label} ${idx+1}`);
           const img = document.createElement('img');
           img.src = `assets/${icon}`; img.alt = ''; img.loading = 'lazy';
-          const lbl = document.createElement('div');
-          lbl.className = 'emoji-label'; lbl.innerText = idx + 1;
-          btn.append(img, lbl);
+          btn.append(img);
           btn.addEventListener('click', () => {
             Array.from(ctr.children).forEach((c,i) => c.classList.toggle('selected', i <= idx));
             hidden.value = idx+1;
@@ -345,10 +351,10 @@
 
       // init
       setWeekLabel();
-      createRatingBar('tasteRating',       ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'],       'tasteRatingInput');
-      createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'],             'temperatureRatingInput');
-      createRatingBar('overallRating',     ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
-      createRatingBar('flowersRating',     ['flower.png','flower.png','flower.png','flower.png','flower.png'],   'flowersRatingInput');
+      createRatingBar('tasteRating', ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'], 'tasteRatingInput');
+      createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'], 'temperatureRatingInput');
+      createRatingBar('overallRating', ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
+      createRatingBar('flowersRating', ['flower.png','flower.png','flower.png','flower.png','flower.png'], 'flowersRatingInput');
       showPage(0);
     })();
   </script>
