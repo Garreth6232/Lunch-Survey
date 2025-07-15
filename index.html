@@ -9,29 +9,26 @@
     rel="stylesheet"/>
   <style>
     /*----------------------------
-      Theme & Global Styles
+      Global & Theme Variables
     -----------------------------*/
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; }
     :root {
       --primary: #8b0000;
-      --primary-hover: #b30000;
-      --overlay: rgba(0,0,0,0.75);       /* darker overlay for contrast */
-      --bg-light: rgba(255,255,255,0.95); /* crisper panel */
-      --text: #fff;                       /* light text */
-      --text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-      --label-color: #eee;
-
-      /* button shine & lift */
+      --primary-hover: #5a0000;
+      --overlay: rgba(0,0,0,0.6);
+      --bg-light: rgba(255,255,255,0.9);
+      --text: #000;              /* BLACK text */
+      --label-color: #555;
       --button-lift: -4px;
-      --button-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      --button-shadow: 0 6px 12px rgba(0,0,0,0.15);
       --shine-color: rgba(255,255,255,0.4);
       --shine-duration: 0.7s;
     }
 
     body {
+      margin: 0;
       font-family: 'Inter', sans-serif;
       color: var(--text);
-      text-shadow: var(--text-shadow);
       background:
         linear-gradient(var(--overlay), var(--overlay)),
         url('assets/modabackground.png') no-repeat center center fixed;
@@ -43,10 +40,7 @@
       padding: 1rem;
     }
 
-    main {
-      width: 100%;
-      max-width: 700px;
-    }
+    main { width: 100%; max-width: 700px; }
 
     header.survey-title-box {
       background: var(--bg-light);
@@ -54,13 +48,12 @@
       border-radius: 8px;
       text-align: center;
       margin-bottom: 1rem;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .survey-title {
+      margin: 0;
       font-size: 1.75rem;
       font-weight: 600;
       color: var(--primary);
-      text-shadow: none;
     }
 
     form {
@@ -77,7 +70,6 @@
       font-weight: 600;
       font-size: 1rem;
       color: var(--text);
-      text-shadow: var(--text-shadow);
     }
 
     input[type="date"],
@@ -85,8 +77,8 @@
       width: 100%;
       padding: 0.75rem;
       margin-top: 0.5rem;
-      border: 1px solid #aaa;
-      background: #fff;
+      border: 1px solid #888;
+      background: #f9f9f9;
       border-radius: 4px;
       font-size: 1rem;
       color: #222;
@@ -129,6 +121,8 @@
       cursor: default;
       pointer-events: none;
     }
+
+    /* Sheen on buttons */
     button::before {
       content: '';
       position: absolute;
@@ -168,20 +162,20 @@
       cursor: pointer;
     }
     .emoji-container img {
-      display: block;
       width: 6vw;
       max-width: 60px;
       min-width: 40px;
       filter: grayscale(100%);
-      transition: filter 0.2s ease;
-      /* floating drop-shadow */
-      filter: grayscale(100%) drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .emoji-container:hover img {
+      transform: scale(1.1);
     }
     .emoji-container.selected img {
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+      filter: none;
     }
 
-    /* Popup & confetti */
+    /* —— POPUP & CONFETTI —— */
     #popup {
       display: none;
       position: fixed; top: 50%; left: 50%;
@@ -291,21 +285,16 @@
     function showPage(i) {
       pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
       currentPage = i;
-      if (i === 0) {
-        dateInput.focus();
-        dateInput.showPicker?.();
-      }
+      if (i === 0) dateInput.showPicker?.(), dateInput.focus();
     }
 
     window.nextPage = () => {
       if (currentPage === 1) {
-        for (let hi of pages[1].querySelectorAll('input[type="hidden"]')) {
+        for (let hi of pages[1].querySelectorAll('input[type="hidden"]'))
           if (!hi.value) return alert(`Please select a rating for ${hi.dataset.label}.`);
-        }
       }
-      for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]),textarea')) {
+      for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]),textarea'))
         if (!f.checkValidity()) { f.reportValidity(); return; }
-      }
       if (currentPage < pages.length - 1) showPage(currentPage + 1);
     };
     window.prevPage = () => { if (currentPage > 0) showPage(currentPage - 1); };
@@ -323,23 +312,22 @@
 
     function setWeekLabel() {
       const today = new Date(),
-            dow   = today.getDay(),
-            diff  = dow < 2 ? dow + 5 : dow - 2;
-      const tuesday  = new Date(today.getTime());
-      tuesday.setDate(tuesday.getDate() - diff);
-      const thursday = new Date(tuesday.getTime());
-      thursday.setDate(thursday.getDate() + 2);
-      const fmt = d => d.toLocaleDateString(undefined, { month:'numeric', day:'numeric' });
-      const iso = d => d.toISOString().slice(0,10);
+            d = today.getDay(),
+            diff = d < 2 ? d + 5 : d - 2;
+      const t = new Date(today.getTime());
+      t.setDate(t.getDate() - diff);
+      const th = new Date(t.getTime());
+      th.setDate(th.getDate() + 2);
+      const fmt = dt => dt.toLocaleDateString(undefined, { month:'numeric', day:'numeric' });
+      dateInput.min = t.toISOString().slice(0,10);
+      dateInput.max = th.toISOString().slice(0,10);
       document.getElementById('surveyWeek').innerText =
-        `Campus Lunch Survey ${fmt(tuesday)}–${fmt(thursday)}`;
-      dateInput.min = iso(tuesday);
-      dateInput.max = iso(thursday);
+        `Campus Lunch Survey ${fmt(t)}–${fmt(th)}`;
     }
 
-    function createRatingBar(barId, icons, hiddenId) {
-      const ctr    = document.getElementById(barId),
-            hidden = document.getElementById(hiddenId);
+    function createRatingBar(barId, icons, hid) {
+      const ctr = document.getElementById(barId),
+            hidden = document.getElementById(hid);
       ctr.innerHTML = '';
       icons.forEach((icon, idx) => {
         const btn = document.createElement('button');
@@ -355,22 +343,22 @@
 
         const lbl = document.createElement('div');
         lbl.className = 'emoji-label';
-        lbl.innerText = idx + 1;
+        lbl.innerText = idx+1;
 
         btn.addEventListener('click', () => {
           Array.from(ctr.children).forEach((c,i) =>
             c.classList.toggle('selected', i <= idx)
           );
-          hidden.value = idx + 1;
+          hidden.value = idx+1;
         });
         btn.addEventListener('keydown', e => {
-          if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) {
+          if ((e.key==='Enter'||e.key===' ') && !e.repeat) {
             btn.click(); e.preventDefault();
           }
-          if (e.key === 'ArrowRight' && idx < icons.length - 1)
-            ctr.children[idx + 1].focus();
-          if (e.key === 'ArrowLeft' && idx > 0)
-            ctr.children[idx - 1].focus();
+          if (e.key==='ArrowRight' && idx<icons.length-1)
+            ctr.children[idx+1].focus();
+          if (e.key==='ArrowLeft' && idx>0)
+            ctr.children[idx-1].focus();
         });
 
         btn.append(img, lbl);
@@ -378,24 +366,18 @@
       });
     }
 
-    // Optimistic submit
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const submitBtn = form.querySelector('button[type="submit"]');
-      submitBtn.disabled = true;
-      submitBtn.innerText = 'Submitting…';
+      const sb = form.querySelector('button[type="submit"]');
+      sb.disabled = true;
+      sb.innerText = 'Submitting…';
       popup.style.display = 'block';
       confetti.style.display = 'block';
-      const endpoint = 'https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec';
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(endpoint, new FormData(form));
-      } else {
-        fetch(endpoint, { method:'POST', body:new FormData(form) })
-          .catch(err => console.error('Submission failed:', err));
-      }
+      const url = 'https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec';
+      if (navigator.sendBeacon) navigator.sendBeacon(url, new FormData(form));
+      else fetch(url, { method:'POST', body:new FormData(form) }).catch(console.error);
     });
 
-    // Init
     setWeekLabel();
     createRatingBar('tasteRating',       ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'],       'tasteRatingInput');
     createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'],             'temperatureRatingInput');
