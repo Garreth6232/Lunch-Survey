@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Campus Lunch Survey</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
-        rel="stylesheet"/>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+    rel="stylesheet"/>
   <style>
     /*--------------------------
       Box-model & theme vars
@@ -67,6 +68,13 @@
       text-align: center;
       font-weight: 600;
       font-size: 1rem;
+    }
+
+    /* Remove the default box around each rating fieldset */
+    fieldset {
+      border: none;
+      margin: 0;
+      padding: 0;
     }
 
     input[type="date"],
@@ -245,58 +253,38 @@
   <script>
   (function(){
     'use strict';
-
-    // state & elements
     let currentPage = 0;
-    const pages     = document.querySelectorAll('.page');
-    const form      = document.getElementById('surveyForm');
-    const dateInput = document.getElementById('lunchDate');
+    const pages     = document.querySelectorAll('.page'),
+          form      = document.getElementById('surveyForm'),
+          dateInput = document.getElementById('lunchDate');
 
-    // show/hide pages
     function showPage(i) {
       pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
       currentPage = i;
       if (i === 0) {
         dateInput.focus();
-        // modern browsers only:
-        if (typeof dateInput.showPicker === 'function') {
-          dateInput.showPicker();
-        }
+        if (typeof dateInput.showPicker === 'function') dateInput.showPicker();
       }
     }
 
-    // next/back
     window.nextPage = () => {
       if (currentPage === 1) {
-        // ensure all ratings chosen
-        for (let hi of pages[1].querySelectorAll('input[type="hidden"]')) {
-          if (!hi.value) {
-            return alert(`Please select a rating for ${hi.dataset.label}.`);
-          }
-        }
+        for (let hi of pages[1].querySelectorAll('input[type="hidden"]'))
+          if (!hi.value) return alert(`Please select a rating for ${hi.dataset.label}.`);
       }
-      // validate required
-      for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]), textarea')) {
-        if (!f.checkValidity()) {
-          f.reportValidity();
-          return;
-        }
-      }
+      for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]), textarea'))
+        if (!f.checkValidity()) { f.reportValidity(); return; }
       if (currentPage < pages.length - 1) showPage(currentPage + 1);
     };
     window.prevPage = () => { if (currentPage > 0) showPage(currentPage - 1); };
 
-    // popup handlers
     window.closePopup = () => {
       document.getElementById('popup').style.display = 'none';
       document.getElementById('confettiVideo').style.display = 'none';
-      form.reset();
-      setWeekLabel();
-      showPage(0);
+      form.reset(); setWeekLabel(); showPage(0);
     };
-    window.reviewAnother = () => { closePopup(); /* showPage(0) auto-opens picker */ };
+    window.reviewAnother = () => closePopup();
 
-    // compute & set week label + bounds
     function setWeekLabel() {
       const now = new Date(),
             day = now.getDay(),
@@ -304,13 +292,12 @@
             tues = new Date(now.setDate(now.getDate() - diff)),
             thurs = new Date(tues).setDate(tues.getDate() + 2),
             opts = { month:'numeric', day:'numeric' },
-            label = document.getElementById('surveyWeek');
-      label.innerText = `Campus Lunch Survey ${new Date(tues).toLocaleDateString(undefined,opts)}–${new Date(thurs).toLocaleDateString(undefined,opts)}`;
+            lbl = document.getElementById('surveyWeek');
+      lbl.innerText = `Campus Lunch Survey ${new Date(tues).toLocaleDateString(undefined,opts)}–${new Date(thurs).toLocaleDateString(undefined,opts)}`;
       dateInput.min = new Date(tues).toISOString().slice(0,10);
       dateInput.max = new Date(thurs).toISOString().slice(0,10);
     }
 
-    // build emoji bars
     function createRatingBar(id, icons, hid) {
       const ctr = document.getElementById(id),
             hidden = document.getElementById(hid);
@@ -321,47 +308,38 @@
         btn.className = 'emoji-container';
         btn.setAttribute('aria-label', `${hidden.dataset.label} ${idx+1}`);
         const img = document.createElement('img');
-        img.src = `assets/${icon}`;
-        img.alt = '';
-        img.loading = 'lazy';
+        img.src = `assets/${icon}`; img.alt = ''; img.loading = 'lazy';
         const lbl = document.createElement('div');
-        lbl.className = 'emoji-label';
-        lbl.innerText = idx + 1;
+        lbl.className = 'emoji-label'; lbl.innerText = idx + 1;
         btn.append(img, lbl);
         btn.addEventListener('click', () => {
-          ctr.childNodes.forEach((c,i) => c.classList.toggle('selected', i <= idx));
+          Array.from(ctr.children).forEach((c,i) => c.classList.toggle('selected', i <= idx));
           hidden.value = idx+1;
         });
         ctr.append(btn);
       });
     }
 
-    // form submit
     form.addEventListener('submit', e => {
       e.preventDefault();
-      fetch('https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec', {
-        method: 'POST',
-        body: new FormData(form)
+      fetch('https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec',{
+        method:'POST', body:new FormData(form)
       })
-      .then(r => { if (!r.ok) throw new Error(r.status); return r.text() })
-      .then(() => {
+      .then(r => { if(!r.ok) throw new Error(r.status); return r.text(); })
+      .then(()=>{
         document.getElementById('popup').style.display = 'block';
         document.getElementById('confettiVideo').style.display = 'block';
       })
-      .catch(err => {
-        console.error(err);
-        alert('Oops—submission failed.');
-      });
+      .catch(err => { console.error(err); alert('Oops—submission failed.'); });
     });
 
-    // INITIALIZE
+    // init
     setWeekLabel();
     createRatingBar('tasteRating',       ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'],       'tasteRatingInput');
     createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'],             'temperatureRatingInput');
     createRatingBar('overallRating',     ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
     createRatingBar('flowersRating',     ['flower.png','flower.png','flower.png','flower.png','flower.png'],   'flowersRatingInput');
     showPage(0);
-
   })();
   </script>
 </body>
