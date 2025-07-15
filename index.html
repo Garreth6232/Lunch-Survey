@@ -2,31 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Campus Lunch Survey</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+    rel="stylesheet"/>
   <style>
-    /* Box-model & theme vars */
+    /* Box Model & Theme Variables */
     *, *::before, *::after { box-sizing: border-box; }
     :root {
       --primary: #8b0000;
       --primary-hover: #5a0000;
-      --overlay: rgba(0,0,0,0.6);
+      --bg-overlay: rgba(0,0,0,0.6);
       --bg-light: rgba(255,255,255,0.9);
       --text: #333;
-      --label-color: #555;
-      --radius: 4px;
+      --label: #555;
+      --radius: 6px;
       --transition: 0.3s;
-      --emoji-size: 50px;
-      --shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
     html {
       font-size: 16px;
       -webkit-text-size-adjust: 100%;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
     body {
@@ -34,7 +31,7 @@
       font-family: 'Inter', sans-serif;
       color: var(--text);
       background:
-        linear-gradient(var(--overlay), var(--overlay)),
+        linear-gradient(var(--bg-overlay), var(--bg-overlay)),
         url('assets/modabackground.png') center/cover fixed no-repeat;
       display: flex;
       align-items: center;
@@ -49,16 +46,16 @@
       margin: auto;
     }
 
-    header.survey-title-box {
+    header {
       background: var(--bg-light);
-      padding: 1rem 2rem;
+      padding: 1.5rem;
       border-radius: var(--radius);
       text-align: center;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
     .survey-title {
       margin: 0;
-      font-size: 1.75rem;
+      font-size: 1.875rem;
       font-weight: 600;
       color: var(--primary);
     }
@@ -75,28 +72,18 @@
       margin-top: 1.5rem;
       text-align: center;
       font-weight: 600;
-      font-size: 1rem;
     }
-    fieldset {
-      border: none;
-      margin: 0;
-      padding: 0;
-    }
+    fieldset { border: none; margin: 0; padding: 0; }
 
     input[type="date"], textarea {
       width: 100%;
-      padding: 0.75rem;
       margin-top: 0.5rem;
+      padding: 0.75rem;
       border: 1px solid #888;
-      border-radius: var(--radius);
+      border-radius: 4px;
       background: #f9f9f9;
       font-size: 1rem;
       color: #222;
-      transition: border-color var(--transition);
-    }
-    input[type="date"]:focus, textarea:focus {
-      border-color: var(--primary);
-      outline: none;
     }
     textarea { min-height: 120px; resize: vertical; }
 
@@ -119,53 +106,37 @@
       font-weight: 600;
       cursor: pointer;
       min-width: 120px;
-      border-radius: var(--radius);
-      transition: background var(--transition), transform 0.2s;
+      border-radius: 4px;
+      transition: background var(--transition);
     }
-    button:hover { background: var(--primary-hover); transform: translateY(-2px); }
+    button:hover { background: var(--primary-hover); }
 
     /* Rating Styles */
     .emoji-bar {
       display: flex;
-      justify-content: space-around;
-      align-items: center;
+      justify-content: center;
       gap: 1rem;
       margin: 1rem 0;
-      padding: 0;
-      overflow: hidden;
     }
     .emoji-container {
-      background: transparent;
+      background: none;
       border: none;
-      padding: 0;
-      flex: none;
-      width: var(--emoji-size);
-      height: var(--emoji-size);
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       cursor: pointer;
-      transition: transform 0.2s;
-      box-shadow: var(--shadow);
-      border-radius: 50%;
     }
-    .emoji-container:hover { transform: translateY(-4px); }
     .emoji-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+      width: min(60px, 6vw);
       filter: grayscale(100%);
-      transition: filter var(--transition);
+      transition: transform 0.2s, filter 0.2s;
     }
     .emoji-container.selected img { filter: none; }
-
-    /* Mobile sliding */
-    @media (max-width: 480px) {
-      .emoji-bar {
-        overflow-x: auto;
-        padding: 0 0.5rem;
-      }
-      .emoji-container {
-        margin-right: 0.5rem;
-      }
+    .emoji-container:hover img { transform: scale(1.1); }
+    .emoji-label {
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--label);
     }
 
     /* Popup & Confetti */
@@ -179,6 +150,7 @@
       border-radius: var(--radius);
       text-align: center;
       z-index: 10001;
+      width: 90%; max-width: 320px;
     }
     .confetti-video {
       display: none;
@@ -196,166 +168,91 @@
       form { padding: 1.5rem 0.5rem; }
       .survey-title { font-size: 1.5rem; }
       .buttons { flex-direction: column; }
+      .emoji-bar { gap: 0.5rem; }
     }
   </style>
 </head>
 <body>
   <main aria-labelledby="surveyWeek">
-    <header class="survey-title-box">
-      <h1 class="survey-title" id="surveyWeek"></h1>
+    <header>
+      <h1 id="surveyWeek" class="survey-title"></h1>
     </header>
-
     <form id="surveyForm">
       <!-- Page 1 -->
-      <section class="page active">
+      <section class="page active" data-page="date">
         <label for="lunchDate">What day are you reviewing?</label>
         <input type="date" id="lunchDate" name="lunchDate" required>
         <div class="buttons">
-          <button type="button" onclick="nextPage()">Continue</button>
+          <button type="button" id="nextBtn1">Continue</button>
         </div>
       </section>
-
-      <!-- Page 2: Ratings -->
-      <section class="page">
+      <!-- Page 2 -->
+      <section class="page" data-page="ratings">
         <fieldset>
           <legend>Taste</legend>
           <div class="emoji-bar" id="tasteRating"></div>
-          <input type="hidden" id="tasteRatingInput" name="tasteRating" data-label="Taste" required>
+          <input type="hidden" id="tasteInput" name="tasteRating" data-label="Taste" required>
         </fieldset>
         <fieldset>
           <legend>Temperature</legend>
-          <div class="emoji-bar" id="temperatureRating"></div>
-          <input type="hidden" id="temperatureRatingInput" name="temperatureRating" data-label="Temperature" required>
+          <div class="emoji-bar" id="tempRating"></div>
+          <input type="hidden" id="tempInput" name="temperatureRating" data-label="Temperature" required>
         </fieldset>
         <fieldset>
           <legend>Overall</legend>
           <div class="emoji-bar" id="overallRating"></div>
-          <input type="hidden" id="overallRatingInput" name="overallRating" data-label="Overall Experience" required>
+          <input type="hidden" id="overallInput" name="overallRating" data-label="Overall Experience" required>
         </fieldset>
         <fieldset>
           <legend>Flowers for the Chefs</legend>
           <div class="emoji-bar" id="flowersRating"></div>
-          <input type="hidden" id="flowersRatingInput" name="flowersRating" data-label="Flowers for the Chefs" required>
+          <input type="hidden" id="flowersInput" name="flowersRating" data-label="Flowers for the Chefs" required>
         </fieldset>
         <div class="buttons">
-          <button type="button" onclick="prevPage()">Back</button>
-          <button type="button" onclick="nextPage()">Continue</button>
+          <button type="button" id="prevBtn2">Back</button>
+          <button type="button" id="nextBtn2">Continue</button>
         </div>
       </section>
-
-      <!-- Page 3: Free-text -->
-      <section class="page">
+      <!-- Page 3 -->
+      <section class="page" data-page="comments">
         <label for="memorable">What was memorable?</label>
         <textarea id="memorable" name="memorable" required></textarea>
-
         <label for="expectations">Anything below expectations?</label>
         <textarea id="expectations" name="expectations" required></textarea>
-
         <div class="buttons">
-          <button type="button" onclick="prevPage()">Back</button>
+          <button type="button" id="prevBtn3">Back</button>
           <button type="submit">Submit</button>
         </div>
       </section>
     </form>
-
-    <!-- Thank-you popup -->
     <div id="popup">
-      🎉 Thank you for submitting!<br/><br/>
+      🎉 Thank you for submitting!<br><br>
       <div class="buttons">
-        <button type="button" onclick="reviewAnother()">I’m reviewing another day</button>
-        <button type="button" onclick="closePopup()">Close</button>
+        <button type="button" id="reviewMore">I’m reviewing another day</button>
+        <button type="button" id="closePopup">Close</button>
       </div>
     </div>
-
-    <!-- Confetti overlay -->
-    <video class="confetti-video" id="confettiVideo" preload="auto" autoplay muted loop playsinline>
-      <source src="assets/confetti.mp4" type="video/mp4"/>
+    <video id="confettiVideo" class="confetti-video" autoplay muted loop playsinline>
+      <source src="assets/confetti.mp4" type="video/mp4">
     </video>
-
   </main>
-
   <script>
-    (function(){
-      'use strict';
-      let currentPage = 0;
-      const pages     = document.querySelectorAll('.page'),
-            form      = document.getElementById('surveyForm'),
-            dateInput = document.getElementById('lunchDate');
-
-      function showPage(i) {
-        pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
-        currentPage = i;
-      }
-
-      window.nextPage = () => {
-        if (currentPage === 1) {
-          for (let hi of pages[1].querySelectorAll('input[type="hidden"]'))
-            if (!hi.value) return alert(`Please select a rating for ${hi.dataset.label}.`);
-        }
-        for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]), textarea'))
-          if (!f.checkValidity()) { f.reportValidity(); return; }
-        if (currentPage < pages.length - 1) showPage(currentPage + 1);
-      };
-      window.prevPage = () => { if (currentPage > 0) showPage(currentPage - 1); };
-
-      window.closePopup = () => {
-        document.getElementById('popup').style.display = 'none';
-        document.getElementById('confettiVideo').style.display = 'none';
-        form.reset(); setWeekLabel(); showPage(0);
-      };
-      window.reviewAnother = () => closePopup();
-
-      function setWeekLabel() {
-        const now = new Date(),
-              day = now.getDay(),
-              diff = day < 2 ? day + 5 : day - 2,
-              tues = new Date(now.setDate(now.getDate() - diff)),
-              thurs = new Date(tues).setDate(tues.getDate() + 2),
-              opts = { month:'numeric', day:'numeric' },
-              lbl = document.getElementById('surveyWeek');
-        lbl.innerText = `Campus Lunch Survey ${new Date(tues).toLocaleDateString(undefined,opts)}–${new Date(thurs).toLocaleDateString(undefined,opts)}`;
-        dateInput.min = new Date(tues).toISOString().slice(0,10);
-        dateInput.max = new Date(thurs).toISOString().slice(0,10);
-      }
-
-      function createRatingBar(id, icons, hid) {
-        const ctr = document.getElementById(id),
-              hidden = document.getElementById(hid);
-        ctr.innerHTML = '';
-        icons.forEach((icon, idx) => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'emoji-container';
-          btn.setAttribute('aria-label', `${hidden.dataset.label} ${idx+1}`);
-          const img = document.createElement('img');
-          img.src = `assets/${icon}`; img.alt = ''; img.loading = 'lazy';
-          btn.append(img);
-          btn.addEventListener('click', () => {
-            Array.from(ctr.children).forEach((c,i) => c.classList.toggle('selected', i <= idx));
-            hidden.value = idx+1;
-          });
-          ctr.append(btn);
-        });
-      }
-
-      form.addEventListener('submit', e => {
-        e.preventDefault();
-        fetch('https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec',{method:'POST', body:new FormData(form)})
-        .then(r => { if(!r.ok) throw new Error(r.status); return r.text(); })
-        .then(()=>{
-          document.getElementById('popup').style.display = 'block';
-          document.getElementById('confettiVideo').style.display = 'block';
-        })
-        .catch(err => { console.error(err); alert('Oops—submission failed.'); });
-      });
-
-      // init
-      setWeekLabel();
-      createRatingBar('tasteRating', ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'], 'tasteRatingInput');
-      createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'], 'temperatureRatingInput');
-      createRatingBar('overallRating', ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
-      createRatingBar('flowersRating', ['flower.png','flower.png','flower.png','flower.png','flower.png'], 'flowersRatingInput');
-      showPage(0);
+    (function() {
+      const pages = [...document.querySelectorAll('.page')];
+      let currentIndex = 0;
+      const form = document.getElementById('surveyForm');
+      const dateInput = document.getElementById('lunchDate');
+      const weekLabel = document.getElementById('surveyWeek');
+      const popup = document.getElementById('popup');
+      const confetti = document.getElementById('confettiVideo');
+      function showPage(i) { pages.forEach((p, idx) => p.classList.toggle('active', idx===i)); currentIndex=i; if(i===0) dateInput.focus(); }
+      function validatePage(i) { const p=pages[i]; for(const inp of p.querySelectorAll('input:not([type="hidden"]), textarea')) if(!inp.checkValidity()){inp.reportValidity();return false;} if(p.dataset.page==='ratings'){for(const hi of p.querySelectorAll('input[type="hidden"]')) if(!hi.value){alert(`Please select a rating for ${hi.dataset.label}.`);return false;}}return true; }
+      document.getElementById('nextBtn1').onclick=()=>{if(validatePage(currentIndex))showPage(1);}; document.getElementById('prevBtn2').onclick=()=>showPage(0); document.getElementById('nextBtn2').onclick=()=>{if(validatePage(currentIndex))showPage(2);}; document.getElementById('prevBtn3').onclick=()=>showPage(1);
+      document.getElementById('closePopup').onclick=reset; document.getElementById('reviewMore').onclick=reset; function reset(){popup.style.display='none';confetti.style.display='none';form.reset();setWeek();showPage(0);}      
+      form.onsubmit=e=>{e.preventDefault();fetch('https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec',{method:'POST',body:new FormData(form)}).then(res=>res.ok?res.text():Promise.reject(res.status)).then(()=>{popup.style.display='block';confetti.style.display='block';}).catch(()=>alert('Oops—submission failed.'));};
+      function setWeek(){const now=new Date(),day=now.getDay(),offset=day<2?day+5:day-2,tues=new Date(now),thurs=new Date(tues);tues.setDate(now.getDate()-offset);thurs.setDate(tues.getDate()+2);const fmt={month:'numeric',day:'numeric'};weekLabel.textContent=`Campus Lunch Survey ${tues.toLocaleDateString(undefined,fmt)}–${thurs.toLocaleDateString(undefined,fmt)}`;dateInput.min=tues.toISOString().slice(0,10);dateInput.max=new Date(thurs).toISOString().slice(0,10);}      
+      function createRating(id,icons,inputId){const ctr=document.getElementById(id),hidden=document.getElementById(inputId);ctr.innerHTML='';icons.forEach((icon,i)=>{const btn=document.createElement('button');btn.type='button';btn.className='emoji-container';btn.ariaLabel=`${hidden.dataset.label} ${i+1}`;const img=document.createElement('img');img.src=`assets/${icon}`;img.alt='';img.loading='lazy';btn.append(img);btn.addEventListener('click',()=>{[...ctr.children].forEach((c,j)=>c.classList.toggle('selected',j<=i));hidden.value=i+1;});ctr.appendChild(btn);});}
+      setWeek();createRating('tasteRating',['hotdog.png'.repeat(5)],'tasteInput');createRating('tempRating',['fire.png'.repeat(5)],'tempInput');createRating('overallRating',['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'],'overallInput');createRating('flowersRating',['flower.png'.repeat(5)],'flowersInput');showPage(0);
     })();
   </script>
 </body>
