@@ -78,6 +78,7 @@
     }
 
     input[type="date"],
+    select,
     textarea {
       width: 100%;
       padding: 0.75rem;
@@ -237,7 +238,8 @@
         width: 100%;
         min-width: auto;
       }
-      input[type="date"], textarea {
+      input[type="date"], select,
+      textarea {
         font-size: 0.95rem;
       }
     }
@@ -367,10 +369,10 @@
       weekSelect.innerHTML = '';
       for (let i=0;i<count;i++) {
         const tues = new Date(start); tues.setDate(start.getDate() - i*7);
-        const fri = new Date(tues); fri.setDate(tues.getDate() + 3);
+        const end = new Date(tues); end.setDate(tues.getDate() + 2);
         const opt = document.createElement('option');
         opt.value = tues.toISOString().slice(0,10);
-        opt.textContent = `${tues.toLocaleDateString(undefined,opts)}–${fri.toLocaleDateString(undefined,opts)}`;
+        opt.textContent = `${tues.toLocaleDateString(undefined,opts)}–${end.toLocaleDateString(undefined,opts)}`;
         weekSelect.append(opt);
       }
     }
@@ -379,10 +381,10 @@
       const opts = { month:'numeric', day:'numeric' },
             lbl  = document.getElementById('surveyWeek');
       let tues = weekSelect.value ? new Date(weekSelect.value) : getCurrentTuesday();
-      const fri = new Date(tues); fri.setDate(tues.getDate() + 3);
-      lbl.innerText = `Campus Lunch Survey ${tues.toLocaleDateString(undefined,opts)}–${fri.toLocaleDateString(undefined,opts)}`;
+      const end = new Date(tues); end.setDate(tues.getDate() + 2);
+      lbl.innerText = `Campus Lunch Survey ${tues.toLocaleDateString(undefined,opts)}–${end.toLocaleDateString(undefined,opts)}`;
       dateInput.min = tues.toISOString().slice(0,10);
-      dateInput.max = fri.toISOString().slice(0,10);
+      dateInput.max = end.toISOString().slice(0,10);
       if (dateInput.value < dateInput.min || dateInput.value > dateInput.max) dateInput.value = '';
     }
 
