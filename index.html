@@ -78,6 +78,7 @@
     }
 
     input[type="date"],
+    select,
     textarea {
       width: 100%;
       padding: 0.75rem;
@@ -185,6 +186,8 @@
       margin-top: 0.25rem;
     }
 
+    .d-none { display: none; }
+
     /* Popup & confetti */
     #popup {
       display: none;
@@ -237,7 +240,8 @@
         width: 100%;
         min-width: auto;
       }
-      input[type="date"], textarea {
+      input[type="date"], select,
+      textarea {
         font-size: 0.95rem;
       }
     }
@@ -252,8 +256,12 @@
     <form id="surveyForm">
       <!-- Page 1 -->
       <section class="page active">
-        <label for="lunchDate">What day are you reviewing?</label>
-        <input type="date" id="lunchDate" name="lunchDate" required>
+        <label for="weekSelect">Which week are you reviewing?</label>
+        <select id="weekSelect" onchange="setWeekLabel()"></select>
+        <div id="dateGroup" class="d-none">
+          <label for="lunchDate">What day are you reviewing?</label>
+          <input type="date" id="lunchDate" name="lunchDate" required>
+        </div>
         <div class="buttons">
           <button type="button" onclick="nextPage()">Continue</button>
         </div>
@@ -323,14 +331,19 @@
     let currentPage = 0;
     const pages     = document.querySelectorAll('.page'),
           form      = document.getElementById('surveyForm'),
-          dateInput = document.getElementById('lunchDate');
+          dateInput = document.getElementById('lunchDate'),
+          weekSelect = document.getElementById('weekSelect');
 
     function showPage(i) {
       pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
       currentPage = i;
       if (i === 0) {
-        dateInput.focus();
-        if (typeof dateInput.showPicker === 'function') dateInput.showPicker();
+        if (!weekSelect.value) {
+          weekSelect.focus();
+        } else {
+          dateInput.focus();
+          if (typeof dateInput.showPicker === 'function') dateInput.showPicker();
+        }
       }
     }
 
@@ -352,17 +365,52 @@
     };
     window.reviewAnother = () => closePopup();
 
-    function setWeekLabel() {
+    function getCurrentTuesday() {
       const now = new Date(),
-            day = now.getDay(),
-            diff = day < 2 ? day + 5 : day - 2,
-            tues = new Date(now.setDate(now.getDate() - diff)),
-            thurs = new Date(tues).setDate(tues.getDate() + 2),
-            opts = { month:'numeric', day:'numeric' },
-            lbl = document.getElementById('surveyWeek');
-      lbl.innerText = `Campus Lunch Survey ${new Date(tues).toLocaleDateString(undefined,opts)}–${new Date(thurs).toLocaleDateString(undefined,opts)}`;
-      dateInput.min = new Date(tues).toISOString().slice(0,10);
-      dateInput.max = new Date(thurs).toISOString().slice(0,10);
+            day = now.getDay();
+      return new Date(now.setDate(now.getDate() - (day < 2 ? day + 5 : day - 2)));
+    }
+
+    function generateWeekOptions(count = 8) {
+      const start = getCurrentTuesday();
+      const opts = { month:'numeric', day:'numeric' };
+      weekSelect.innerHTML = '';
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Select a week';
+      placeholder.selected = true;
+      placeholder.defaultSelected = true;
+      placeholder.disabled = true;
+      weekSelect.append(placeholder);
+      for (let i=0;i<count;i++) {
+        const tues = new Date(start); tues.setDate(start.getDate() - i*7);
+        const end = new Date(tues); end.setDate(tues.getDate() + 2);
+        const opt = document.createElement('option');
+        opt.value = tues.toISOString().slice(0,10);
+        opt.textContent = `${tues.toLocaleDateString(undefined,opts)}–${end.toLocaleDateString(undefined,opts)}`;
+        weekSelect.append(opt);
+      }
+    }
+
+    function setWeekLabel() {
+      const opts = { month:'numeric', day:'numeric' },
+            lbl  = document.getElementById('surveyWeek'),
+            grp  = document.getElementById('dateGroup');
+      if (!weekSelect.value) {
+        lbl.innerText = 'Campus Lunch Survey';
+        dateInput.value = '';
+        dateInput.min = '';
+        dateInput.max = '';
+        grp.classList.add('d-none');
+        return;
+      }
+      let tues = new Date(weekSelect.value);
+      const end = new Date(tues); end.setDate(tues.getDate() + 2);
+      lbl.innerText = `Campus Lunch Survey ${tues.toLocaleDateString(undefined,opts)}–${end.toLocaleDateString(undefined,opts)}`;
+      dateInput.min = tues.toISOString().slice(0,10);
+      dateInput.max = end.toISOString().slice(0,10);
+      if (dateInput.value < dateInput.min || dateInput.value > dateInput.max) dateInput.value = '';
+      grp.classList.remove('d-none');
     }
 
     function createRatingBar(id, icons, hid) {
@@ -403,6 +451,7 @@
     });
 
     // init
+    generateWeekOptions();
     setWeekLabel();
     createRatingBar('tasteRating',       ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'],       'tasteRatingInput');
     createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'],             'temperatureRatingInput');
