@@ -420,36 +420,5 @@
     showPage(0);
   })();
   </script>
-  <form id="surveyForm">
-    <input type="date" name="lunchDate" required>
-    <input type="number" name="tasteRating" min="1" max="5" required>
-    <input type="number" name="temperatureRating" min="1" max="5" required>
-    <input type="number" name="overallRating" min="1" max="5" required>
-    <input type="number" name="flowersRating" min="1" max="5" required>
-    <input type="text" name="memorable" placeholder="What stood out?">
-    <input type="text" name="expectations" placeholder="Did it meet expectations?">
-    <button type="submit">Submit</button>
-  </form>
-  <script>
-  document.getElementById('surveyForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const f = e.target;
-    const data = {
-      lunchDate: f.lunchDate.value,
-      tasteRating: +f.tasteRating.value,
-      temperatureRating: +f.temperatureRating.value,
-      overallRating: +f.overallRating.value,
-      flowersRating: +f.flowersRating.value,
-      memorable: f.memorable.value,
-      expectations: f.expectations.value
-    };
-    const res = await fetch('/.netlify/functions/submit-to-smartsheet', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    alert(json.message || json.error);
-  });
-  </script>
 </body>
 </html>
