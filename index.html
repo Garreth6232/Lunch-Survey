@@ -22,7 +22,7 @@
       --overlay: rgba(0,0,0,0.6);
       --bg-light: rgba(255,255,255,0.9);
       --text: #000;
-      --label-color: #000;        /* make labels black */
+      --label-color: #000;
       --button-lift: -4px;
       --button-shadow: 0 6px 12px rgba(0,0,0,0.15);
       --shine-color: rgba(255,255,255,0.4);
@@ -44,7 +44,6 @@
     }
     main { width: 100%; max-width: 700px; }
 
-    /* remove all fieldset borders */
     fieldset {
       border: none !important;
       margin: 0 !important;
@@ -104,7 +103,6 @@
       margin-top: 2rem;
     }
 
-    /* —— Action Buttons —— */
     button {
       position: relative;
       overflow: hidden;
@@ -152,7 +150,6 @@
       to   { transform: translateX(100%) translateY(100%) rotate(30deg); }
     }
 
-    /* —— Emoji Rating Bar —— */
     .emoji-bar {
       display: flex;
       justify-content: center;
@@ -189,7 +186,6 @@
       text-align: center;
     }
 
-    /* —— Popup & Confetti —— */
     #popup {
       display: none;
       position: fixed; top: 50%; left: 50%;
@@ -211,7 +207,6 @@
       pointer-events: none; z-index: 9999;
     }
 
-    /*———— Mobile optimizations ————*/
     @media (max-width: 600px) {
       header.survey-title-box,
       form { padding: 1rem; }
@@ -407,9 +402,23 @@
       sb.innerText = 'Submitting…';
       popup.style.display = 'block';
       confetti.style.display = 'block';
-      const url = 'https://script.google.com/macros/s/AKfycby7B3hordJ6Q9vp4aLoYHKbOV6wuts_kZv2mPDLtAcWqzaBIy_llDEBFDmbTHp6Pj7-/exec';
-      if (navigator.sendBeacon) navigator.sendBeacon(url, new FormData(form));
-      else fetch(url, { method:'POST', body:new FormData(form) }).catch(console.error);
+      const url = '/.netlify/functions/submit-to-smartsheet';
+      const formData = {
+        lunchDate: form.lunchDate.value,
+        tasteRating: +form.tasteRating.value,
+        temperatureRating: +form.temperatureRating.value,
+        overallRating: +form.overallRating.value,
+        flowersRating: +form.flowersRating.value,
+        memorable: form.memorable.value,
+        expectations: form.expectations.value
+      };
+      fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      })
+      .then(res => res.json())
+      .then(json => alert(json.message || json.error))
+      .catch(err => console.error(err));
     });
 
     setWeekLabel();
@@ -419,37 +428,6 @@
     createRatingBar('flowersRating',     ['flower.png','flower.png','flower.png','flower.png','flower.png'],   'flowersRatingInput');
     showPage(0);
   })();
-  </script>
-  <form id="surveyForm">
-    <input type="date" name="lunchDate" required>
-    <input type="number" name="tasteRating" min="1" max="5" required>
-    <input type="number" name="temperatureRating" min="1" max="5" required>
-    <input type="number" name="overallRating" min="1" max="5" required>
-    <input type="number" name="flowersRating" min="1" max="5" required>
-    <input type="text" name="memorable" placeholder="What stood out?">
-    <input type="text" name="expectations" placeholder="Did it meet expectations?">
-    <button type="submit">Submit</button>
-  </form>
-  <script>
-  document.getElementById('surveyForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const f = e.target;
-    const data = {
-      lunchDate: f.lunchDate.value,
-      tasteRating: +f.tasteRating.value,
-      temperatureRating: +f.temperatureRating.value,
-      overallRating: +f.overallRating.value,
-      flowersRating: +f.flowersRating.value,
-      memorable: f.memorable.value,
-      expectations: f.expectations.value
-    };
-    const res = await fetch('/.netlify/functions/submit-to-smartsheet', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    alert(json.message || json.error);
-  });
   </script>
 </body>
 </html>
