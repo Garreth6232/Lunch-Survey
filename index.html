@@ -252,6 +252,8 @@
     <form id="surveyForm">
       <!-- Page 1 -->
       <section class="page active">
+        <label for="weekSelect">Which week are you reviewing?</label>
+        <select id="weekSelect" onchange="setWeekLabel()"></select>
         <label for="lunchDate">What day are you reviewing?</label>
         <input type="date" id="lunchDate" name="lunchDate" required>
         <div class="buttons">
@@ -323,7 +325,8 @@
     let currentPage = 0;
     const pages     = document.querySelectorAll('.page'),
           form      = document.getElementById('surveyForm'),
-          dateInput = document.getElementById('lunchDate');
+          dateInput = document.getElementById('lunchDate'),
+          weekSelect = document.getElementById('weekSelect');
 
     function showPage(i) {
       pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
@@ -352,17 +355,35 @@
     };
     window.reviewAnother = () => closePopup();
 
-    function setWeekLabel() {
+    function getCurrentTuesday() {
       const now = new Date(),
-            day = now.getDay(),
-            diff = day < 2 ? day + 5 : day - 2,
-            tues = new Date(now.setDate(now.getDate() - diff)),
-            thurs = new Date(tues).setDate(tues.getDate() + 2),
-            opts = { month:'numeric', day:'numeric' },
-            lbl = document.getElementById('surveyWeek');
-      lbl.innerText = `Campus Lunch Survey ${new Date(tues).toLocaleDateString(undefined,opts)}–${new Date(thurs).toLocaleDateString(undefined,opts)}`;
-      dateInput.min = new Date(tues).toISOString().slice(0,10);
-      dateInput.max = new Date(thurs).toISOString().slice(0,10);
+            day = now.getDay();
+      return new Date(now.setDate(now.getDate() - (day < 2 ? day + 5 : day - 2)));
+    }
+
+    function generateWeekOptions(count = 8) {
+      const start = getCurrentTuesday();
+      const opts = { month:'numeric', day:'numeric' };
+      weekSelect.innerHTML = '';
+      for (let i=0;i<count;i++) {
+        const tues = new Date(start); tues.setDate(start.getDate() - i*7);
+        const fri = new Date(tues); fri.setDate(tues.getDate() + 3);
+        const opt = document.createElement('option');
+        opt.value = tues.toISOString().slice(0,10);
+        opt.textContent = `${tues.toLocaleDateString(undefined,opts)}–${fri.toLocaleDateString(undefined,opts)}`;
+        weekSelect.append(opt);
+      }
+    }
+
+    function setWeekLabel() {
+      const opts = { month:'numeric', day:'numeric' },
+            lbl  = document.getElementById('surveyWeek');
+      let tues = weekSelect.value ? new Date(weekSelect.value) : getCurrentTuesday();
+      const fri = new Date(tues); fri.setDate(tues.getDate() + 3);
+      lbl.innerText = `Campus Lunch Survey ${tues.toLocaleDateString(undefined,opts)}–${fri.toLocaleDateString(undefined,opts)}`;
+      dateInput.min = tues.toISOString().slice(0,10);
+      dateInput.max = fri.toISOString().slice(0,10);
+      if (dateInput.value < dateInput.min || dateInput.value > dateInput.max) dateInput.value = '';
     }
 
     function createRatingBar(id, icons, hid) {
@@ -403,6 +424,7 @@
     });
 
     // init
+    generateWeekOptions();
     setWeekLabel();
     createRatingBar('tasteRating',       ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'],       'tasteRatingInput');
     createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'],             'temperatureRatingInput');
