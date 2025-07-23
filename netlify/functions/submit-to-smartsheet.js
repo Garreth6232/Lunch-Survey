@@ -8,6 +8,20 @@ exports.handler = async (event) => {
 
   try {
     const b = JSON.parse(event.body);
+
+    // Fetch existing rows to prevent duplicate submissions for the same date
+    const sheet = await axios.get(
+      `https://api.smartsheet.com/2.0/sheets/${process.env.SMARTSHEET_SHEET_ID}`,
+      { headers: { Authorization: `Bearer ${process.env.SMARTSHEET_API_TOKEN}` } }
+    );
+    const alreadySubmitted = sheet.data.rows.some((row) => {
+      const cell = row.cells.find((c) => c.columnId === 3017456917723);
+      return cell && String(cell.value) === b.lunchDate;
+    });
+    if (alreadySubmitted) {
+      return { statusCode: 200, body: JSON.stringify({ message: 'Already submitted for that date' }) };
+    }
+
     const cells = [
       { columnId: 3017456917723, value: b.lunchDate },
       { columnId: 3017456917724, value: b.tasteRating },
