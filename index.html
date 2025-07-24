@@ -400,12 +400,10 @@
     }
 
     window.nextPage = () => {
-      // Validate any emoji‐bar page (page 2 & 3) before advancing
       if (currentPage === 1 || currentPage === 2) {
         for (let hi of pages[currentPage].querySelectorAll('input[type="hidden"]'))
           if (!hi.value) return alert(`Please select a rating for ${hi.dataset.label}.`);
       }
-      // Validate other inputs on current page
       for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]),textarea'))
         if (!f.checkValidity()) { f.reportValidity(); return; }
       if (currentPage < pages.length - 1) showPage(currentPage + 1);
@@ -496,6 +494,7 @@
         overallRating: +form.overallRating.value,
         flowersRating: +form.flowersRating.value,
         impactDishRating: +form.impactDishRating.value,
+        // Reuse the Overall-Experience emoji set here:
         dishSatisfactionRating: +form.dishSatisfactionRating.value,
         dishQualityRating: +form.dishQualityRating.value,
         dishConvenienceRating: +form.dishConvenienceRating.value,
@@ -525,15 +524,16 @@
     createRatingBar('overallRating',     ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
     createRatingBar('flowersRating',     ['flower.png','flower.png','flower.png','flower.png','flower.png'],   'flowersRatingInput');
 
-    // New Reusable Dishware rating bars (placeholder icons)
+    // New Reusable Dishware rating bars
     createRatingBar(
       'impactDishRating',
       ['placeholder-impact.png','placeholder-impact.png','placeholder-impact.png','placeholder-impact.png','placeholder-impact.png'],
       'impactDishRatingInput'
     );
+    // <-- Reworked to use the same 5 emojis as Overall Experience -->
     createRatingBar(
       'dishSatisfactionRating',
-      ['placeholder-satisfaction.png','placeholder-satisfaction.png','placeholder-satisfaction.png','placeholder-satisfaction.png','placeholder-satisfaction.png'],
+      ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'],
       'dishSatisfactionRatingInput'
     );
     createRatingBar(
@@ -557,3 +557,4 @@
   </script>
 </body>
 </html>
+
