@@ -1,4 +1,8 @@
 const axios = require('axios');
+// Load environment variables from a local .env file during development
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 // === Smartsheet Column IDs ===
 const COL_LUNCH_DATE        = 3017456917723; // existing
