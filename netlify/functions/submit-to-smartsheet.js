@@ -27,8 +27,8 @@ exports.handler = async (event) => {
     return { statusCode: 200, body: 'OK' };
   }
 
-  const { SMARTSHEET_API_TOKEN, SMARTSHEET_SHEET_ID } = process.env;
-  if (!SMARTSHEET_API_TOKEN || !SMARTSHEET_SHEET_ID) {
+  const { FgcHzBPcLWGhME1FvvM0wNIeGNIlUSUml4p4J, P6MM7jFQf8VjF5rm4jv5fGvCmRqFcMg4JcM9pwm } = process.env;
+  if (!FgcHzBPcLWGhME1FvvM0wNIeGNIlUSUml4p4J || !P6MM7jFQf8VjF5rm4jv5fGvCmRqFcMg4JcM9pwm) {
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Missing Smartsheet credentials' })
@@ -40,9 +40,9 @@ exports.handler = async (event) => {
 
     // 1️⃣ Quickly search sheet for an existing row with this lunch date
     const searchRes = await axios.get(
-      `https://api.smartsheet.com/2.0/search/sheets/${SMARTSHEET_SHEET_ID}`,
+      `https://api.smartsheet.com/2.0/search/sheets/${P6MM7jFQf8VjF5rm4jv5fGvCmRqFcMg4JcM9pwm}`,
       {
-        headers: { Authorization: `Bearer ${SMARTSHEET_API_TOKEN}` },
+        headers: { Authorization: `Bearer ${FgcHzBPcLWGhME1FvvM0wNIeGNIlUSUml4p4J}` },
         params: { query: b.lunchDate }
       }
     );
@@ -82,7 +82,7 @@ exports.handler = async (event) => {
 
     // 3️⃣ Post new row to Smartsheet
     await axios.post(
-      `https://api.smartsheet.com/2.0/sheets/${SMARTSHEET_SHEET_ID}/rows`,
+      `https://api.smartsheet.com/2.0/sheets/${P6MM7jFQf8VjF5rm4jv5fGvCmRqFcMg4JcM9pwm}/rows`,
       [{ toTop: true, cells }],
       {
         headers: {
