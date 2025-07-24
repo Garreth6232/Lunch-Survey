@@ -23,19 +23,31 @@ exports.handler = async (event) => {
     return { statusCode: 200, body: 'OK' };
   }
 
+  const { SMARTSHEET_API_TOKEN, SMARTSHEET_SHEET_ID } = process.env;
+  if (!SMARTSHEET_API_TOKEN || !SMARTSHEET_SHEET_ID) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Missing Smartsheet credentials' })
+    };
+  }
+
   try {
     const b = JSON.parse(event.body);
 
-    // 1️⃣ Fetch sheet to check for duplicate by lunchDate
-    const sheetRes = await axios.get(
-      `https://api.smartsheet.com/2.0/sheets/${process.env.SMARTSHEET_SHEET_ID}`,
-      { headers: { Authorization: `Bearer ${process.env.SMARTSHEET_API_TOKEN}` } }
+    // 1️⃣ Quickly search sheet for an existing row with this lunch date
+    const searchRes = await axios.get(
+      `https://api.smartsheet.com/2.0/search/sheets/${SMARTSHEET_SHEET_ID}`,
+      {
+        headers: { Authorization: `Bearer ${SMARTSHEET_API_TOKEN}` },
+        params: { query: b.lunchDate }
+      }
     );
 
-    const already = sheetRes.data.rows.some(row => {
-      const cell = row.cells.find(c => c.columnId === COL_LUNCH_DATE);
-      return cell && String(cell.value) === b.lunchDate;
-    });
+    const already = (searchRes.data.results || []).some(r =>
+      r.objectType === 'CELL' &&
+      r.columnId === COL_LUNCH_DATE &&
+      String(r.text || r.objectValue) === b.lunchDate
+    );
     if (already) {
       return {
         statusCode: 200,
@@ -66,11 +78,11 @@ exports.handler = async (event) => {
 
     // 3️⃣ Post new row to Smartsheet
     await axios.post(
-      `https://api.smartsheet.com/2.0/sheets/${process.env.SMARTSHEET_SHEET_ID}/rows`,
+      `https://api.smartsheet.com/2.0/sheets/${SMARTSHEET_SHEET_ID}/rows`,
       [{ toTop: true, cells }],
       {
         headers: {
-          Authorization: `Bearer ${process.env.SMARTSHEET_API_TOKEN}`,
+          Authorization: `Bearer ${SMARTSHEET_API_TOKEN}`,
           'Content-Type': 'application/json'
         }
       }
@@ -81,10 +93,12 @@ exports.handler = async (event) => {
       body: JSON.stringify({ message: 'Submitted!' })
     };
   } catch (err) {
-    console.error('Submission error:', err);
+    console.error('Submission error:', err.response?.data || err);
+    const status = err.response?.status || 500;
+    const message = err.response?.data?.message || err.message;
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: err.message })
+      statusCode: status,
+      body: JSON.stringify({ error: message })
     };
   }
 };
