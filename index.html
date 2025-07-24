@@ -106,7 +106,7 @@
       margin-top: 2rem;
     }
 
-    button {
+    button:not(.emoji-container) {
       position: relative;
       overflow: hidden;
       background: var(--primary);
@@ -120,16 +120,16 @@
       border-radius: 4px;
       transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
     }
-    button:hover {
+    button:not(.emoji-container):hover {
       transform: translateY(var(--button-lift));
       box-shadow: var(--button-shadow);
       background: var(--primary-hover);
     }
-    button:disabled {
+    button:not(.emoji-container):disabled {
       opacity: 0.6;
       cursor: default;
     }
-    button::before {
+    button:not(.emoji-container)::before {
       content: '';
       position: absolute;
       top: -100%;
@@ -145,7 +145,7 @@
       transform: translateX(-100%) translateY(-100%) rotate(30deg);
       pointer-events: none;
     }
-    button:hover::before {
+    button:not(.emoji-container):hover::before {
       animation: buttonSheen var(--shine-duration) ease-out forwards;
     }
     @keyframes buttonSheen {
@@ -181,6 +181,10 @@
     }
     .emoji-container.selected img {
       filter: none;
+      transform: translateY(var(--button-lift));
+    }
+    .emoji-container.selected:hover img {
+      transform: translateY(var(--button-lift)) scale(1.1);
     }
     .emoji-label {
       color: var(--label-color);
