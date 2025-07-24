@@ -237,7 +237,7 @@
     </header>
 
     <form id="multiPageForm">
-      <!-- Page 1 -->
+      <!-- Page 1: Date -->
       <section class="page active">
         <label for="lunchDate">What day are you reviewing?</label>
         <input type="date" id="lunchDate" name="lunchDate" required>
@@ -246,7 +246,7 @@
         </div>
       </section>
 
-      <!-- Page 2: Ratings -->
+      <!-- Page 2: Original Emoji Ratings -->
       <section class="page">
         <fieldset role="group" aria-labelledby="tasteLegend">
           <legend id="tasteLegend">Taste</legend>
@@ -274,7 +274,85 @@
         </div>
       </section>
 
-      <!-- Page 3: Free-text -->
+      <!-- Page 3: Reusable Dishware Ratings -->
+      <section class="page">
+        <fieldset role="group" aria-labelledby="impactDishLegend">
+          <legend id="impactDishLegend">
+            Rate the impact of the reusable dishware on your campus lunch experience
+          </legend>
+          <div class="emoji-bar" id="impactDishRating"></div>
+          <input
+            type="hidden"
+            id="impactDishRatingInput"
+            name="impactDishRating"
+            data-label="Impact of Reusable Dishware"
+            required>
+        </fieldset>
+
+        <fieldset role="group" aria-labelledby="satisfactionLegend">
+          <legend id="satisfactionLegend">
+            Overall satisfaction with the reusable dishware and utensils
+          </legend>
+          <div class="emoji-bar" id="dishSatisfactionRating"></div>
+          <input
+            type="hidden"
+            id="dishSatisfactionRatingInput"
+            name="dishSatisfactionRating"
+            data-label="Overall satisfaction with the reusable dishware and utensils"
+            required>
+        </fieldset>
+
+        <fieldset role="group" aria-labelledby="qualityLegend">
+          <legend id="qualityLegend">
+            Quality of the reusable dishware and utensils
+          </legend>
+          <div class="emoji-bar" id="dishQualityRating"></div>
+          <input
+            type="hidden"
+            id="dishQualityRatingInput"
+            name="dishQualityRating"
+            data-label="Quality of the reusable dishware and utensils"
+            required>
+        </fieldset>
+
+        <fieldset role="group" aria-labelledby="convenienceLegend">
+          <legend id="convenienceLegend">
+            Convenience of returning your reusable dishware
+          </legend>
+          <div class="emoji-bar" id="dishConvenienceRating"></div>
+          <input
+            type="hidden"
+            id="dishConvenienceRatingInput"
+            name="dishConvenienceRating"
+            data-label="Convenience of returning your reusable dishware"
+            required>
+        </fieldset>
+
+        <fieldset role="group" aria-labelledby="futureLegend">
+          <legend id="futureLegend">
+            Interest in having reusable dishware and utensils at future campus lunches
+          </legend>
+          <div class="emoji-bar" id="dishFutureRating"></div>
+          <input
+            type="hidden"
+            id="dishFutureRatingInput"
+            name="dishFutureRating"
+            data-label="Interest in having reusable dishware and utensils at future campus lunches"
+            required>
+        </fieldset>
+
+        <label for="dishChallenges">
+          Were there any challenges or inconveniences in the reusable dishware experience?
+        </label>
+        <textarea id="dishChallenges" name="dishChallenges" required></textarea>
+
+        <div class="buttons">
+          <button type="button" onclick="prevPage()">Back</button>
+          <button type="button" onclick="nextPage()">Continue</button>
+        </div>
+      </section>
+
+      <!-- Page 4: Free-text -->
       <section class="page">
         <label for="memorable">What was memorable?</label>
         <textarea id="memorable" name="memorable" required></textarea>
@@ -299,7 +377,7 @@
     </div>
 
     <!-- Confetti overlay -->
-      <video class="confetti-video" id="confettiVideo" preload="none" autoplay muted loop playsinline>
+    <video class="confetti-video" id="confettiVideo" preload="none" autoplay muted loop playsinline>
       <source src="assets/confetti.mp4" type="video/mp4"/>
     </video>
   </main>
@@ -322,10 +400,12 @@
     }
 
     window.nextPage = () => {
-      if (currentPage === 1) {
-        for (let hi of pages[1].querySelectorAll('input[type="hidden"]'))
+      // Validate any emoji‐bar page (page 2 & 3) before advancing
+      if (currentPage === 1 || currentPage === 2) {
+        for (let hi of pages[currentPage].querySelectorAll('input[type="hidden"]'))
           if (!hi.value) return alert(`Please select a rating for ${hi.dataset.label}.`);
       }
+      // Validate other inputs on current page
       for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]),textarea'))
         if (!f.checkValidity()) { f.reportValidity(); return; }
       if (currentPage < pages.length - 1) showPage(currentPage + 1);
@@ -415,6 +495,12 @@
         temperatureRating: +form.temperatureRating.value,
         overallRating: +form.overallRating.value,
         flowersRating: +form.flowersRating.value,
+        impactDishRating: +form.impactDishRating.value,
+        dishSatisfactionRating: +form.dishSatisfactionRating.value,
+        dishQualityRating: +form.dishQualityRating.value,
+        dishConvenienceRating: +form.dishConvenienceRating.value,
+        dishFutureRating: +form.dishFutureRating.value,
+        dishChallenges: form.dishChallenges.value,
         memorable: form.memorable.value,
         expectations: form.expectations.value
       };
@@ -438,6 +524,34 @@
     createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'],             'temperatureRatingInput');
     createRatingBar('overallRating',     ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
     createRatingBar('flowersRating',     ['flower.png','flower.png','flower.png','flower.png','flower.png'],   'flowersRatingInput');
+
+    // New Reusable Dishware rating bars (placeholder icons)
+    createRatingBar(
+      'impactDishRating',
+      ['placeholder-impact.png','placeholder-impact.png','placeholder-impact.png','placeholder-impact.png','placeholder-impact.png'],
+      'impactDishRatingInput'
+    );
+    createRatingBar(
+      'dishSatisfactionRating',
+      ['placeholder-satisfaction.png','placeholder-satisfaction.png','placeholder-satisfaction.png','placeholder-satisfaction.png','placeholder-satisfaction.png'],
+      'dishSatisfactionRatingInput'
+    );
+    createRatingBar(
+      'dishQualityRating',
+      ['placeholder-quality.png','placeholder-quality.png','placeholder-quality.png','placeholder-quality.png','placeholder-quality.png'],
+      'dishQualityRatingInput'
+    );
+    createRatingBar(
+      'dishConvenienceRating',
+      ['placeholder-convenience.png','placeholder-convenience.png','placeholder-convenience.png','placeholder-convenience.png','placeholder-convenience.png'],
+      'dishConvenienceRatingInput'
+    );
+    createRatingBar(
+      'dishFutureRating',
+      ['placeholder-future.png','placeholder-future.png','placeholder-future.png','placeholder-future.png','placeholder-future.png'],
+      'dishFutureRatingInput'
+    );
+
     showPage(0);
   })();
   </script>
