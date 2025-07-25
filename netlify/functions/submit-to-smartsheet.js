@@ -5,6 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // === Smartsheet Column IDs ===
+const COL_ROW_ID           = 1001; // unique identifier column
 const COL_LUNCH_DATE        = 3017456917723; // existing
 const COL_TASTE             = 3017456917724; // existing
 const COL_TEMPERATURE       = 3017456917725; // existing
@@ -40,6 +41,7 @@ exports.handler = async (event) => {
 
     // 1️⃣ Build cells array
     const cells = [
+      { columnId: COL_ROW_ID,            value: Date.now() },
       { columnId: COL_LUNCH_DATE,        value: b.lunchDate },
       { columnId: COL_TASTE,             value: b.tasteRating },
       { columnId: COL_TEMPERATURE,       value: b.temperatureRating },
