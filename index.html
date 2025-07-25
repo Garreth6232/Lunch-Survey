@@ -254,22 +254,22 @@
       <section class="page">
         <fieldset role="group" aria-labelledby="tasteLegend">
           <legend id="tasteLegend">Taste</legend>
-          <div class="emoji-bar" id="tasteRating"></div>
+          <div class="emoji-bar" id="tasteRating" role="radiogroup" aria-labelledby="tasteLegend"></div>
           <input type="hidden" id="tasteRatingInput" name="tasteRating" data-label="Taste" required>
         </fieldset>
         <fieldset role="group" aria-labelledby="tempLegend">
           <legend id="tempLegend">Temperature</legend>
-          <div class="emoji-bar" id="temperatureRating"></div>
+          <div class="emoji-bar" id="temperatureRating" role="radiogroup" aria-labelledby="tempLegend"></div>
           <input type="hidden" id="temperatureRatingInput" name="temperatureRating" data-label="Temperature" required>
         </fieldset>
         <fieldset role="group" aria-labelledby="overallLegend">
           <legend id="overallLegend">Overall</legend>
-          <div class="emoji-bar" id="overallRating"></div>
+          <div class="emoji-bar" id="overallRating" role="radiogroup" aria-labelledby="overallLegend"></div>
           <input type="hidden" id="overallRatingInput" name="overallRating" data-label="Overall Experience" required>
         </fieldset>
         <fieldset role="group" aria-labelledby="flowersLegend">
           <legend id="flowersLegend">Flowers for the Chefs</legend>
-          <div class="emoji-bar" id="flowersRating"></div>
+          <div class="emoji-bar" id="flowersRating" role="radiogroup" aria-labelledby="flowersLegend"></div>
           <input type="hidden" id="flowersRatingInput" name="flowersRating" data-label="Flowers for the Chefs" required>
         </fieldset>
         <div class="buttons">
@@ -284,7 +284,7 @@
           <legend id="impactDishLegend">
             Rate the impact of the reusable dishware on your campus lunch experience
           </legend>
-          <div class="emoji-bar" id="impactDishRating"></div>
+          <div class="emoji-bar" id="impactDishRating" role="radiogroup" aria-labelledby="impactDishLegend"></div>
           <input
             type="hidden"
             id="impactDishRatingInput"
@@ -297,7 +297,7 @@
           <legend id="satisfactionLegend">
             Overall satisfaction with the reusable dishware and utensils
           </legend>
-          <div class="emoji-bar" id="dishSatisfactionRating"></div>
+          <div class="emoji-bar" id="dishSatisfactionRating" role="radiogroup" aria-labelledby="satisfactionLegend"></div>
           <input
             type="hidden"
             id="dishSatisfactionRatingInput"
@@ -310,7 +310,7 @@
           <legend id="qualityLegend">
             Quality of the reusable dishware and utensils
           </legend>
-          <div class="emoji-bar" id="dishQualityRating"></div>
+          <div class="emoji-bar" id="dishQualityRating" role="radiogroup" aria-labelledby="qualityLegend"></div>
           <input
             type="hidden"
             id="dishQualityRatingInput"
@@ -323,7 +323,7 @@
           <legend id="convenienceLegend">
             Convenience of returning your reusable dishware
           </legend>
-          <div class="emoji-bar" id="dishConvenienceRating"></div>
+          <div class="emoji-bar" id="dishConvenienceRating" role="radiogroup" aria-labelledby="convenienceLegend"></div>
           <input
             type="hidden"
             id="dishConvenienceRatingInput"
@@ -336,7 +336,7 @@
           <legend id="futureLegend">
             Interest in having reusable dishware and utensils at future campus lunches
           </legend>
-          <div class="emoji-bar" id="dishFutureRating"></div>
+          <div class="emoji-bar" id="dishFutureRating" role="radiogroup" aria-labelledby="futureLegend"></div>
           <input
             type="hidden"
             id="dishFutureRatingInput"
@@ -400,19 +400,26 @@
     function showPage(i) {
       pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
       currentPage = i;
-      if (i === 0) dateInput.showPicker?.(), dateInput.focus();
+      const first = pages[i].querySelector('input, textarea, button');
+      if (i === 0) {
+        dateInput.showPicker?.();
+        dateInput.focus();
+      } else if (first) {
+        first.focus();
+      }
     }
 
     window.nextPage = () => {
+      if (isSubmitting) return;
       if (currentPage === 1 || currentPage === 2) {
-        for (let hi of pages[currentPage].querySelectorAll('input[type="hidden"]'))
+        for (const hi of pages[currentPage].querySelectorAll('input[type="hidden"]'))
           if (!hi.value) return alert(`Please select a rating for ${hi.dataset.label}.`);
       }
-      for (let f of pages[currentPage].querySelectorAll('input:not([type="hidden"]),textarea'))
+      for (const f of pages[currentPage].querySelectorAll('input:not([type="hidden"]),textarea'))
         if (!f.checkValidity()) { f.reportValidity(); return; }
       if (currentPage < pages.length - 1) showPage(currentPage + 1);
     };
-    window.prevPage = () => { if (currentPage > 0) showPage(currentPage - 1); };
+    window.prevPage = () => { if (!isSubmitting && currentPage > 0) showPage(currentPage - 1); };
 
     window.closePopup = () => {
       popup.style.display = 'none';
@@ -445,13 +452,26 @@
       const ctr = document.getElementById(barId),
             hidden = document.getElementById(hid);
       ctr.innerHTML = '';
+      ctr.setAttribute('role', 'radiogroup');
+      ctr.setAttribute('aria-label', hidden.dataset.label);
+      const btns = [];
+      const select = idx => {
+        btns.forEach((b,i) => {
+          b.classList.toggle('selected', i <= idx);
+          b.setAttribute('aria-checked', i === idx ? 'true' : 'false');
+          b.tabIndex = i === idx ? 0 : -1;
+        });
+        hidden.value = idx + 1;
+      };
       icons.forEach((icon, idx) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'emoji-container';
         btn.setAttribute('aria-label', `${hidden.dataset.label} ${idx+1}`);
-        btn.tabIndex = 0;
-
+        btn.setAttribute('role', 'radio');
+        btn.setAttribute('aria-checked', 'false');
+        btn.tabIndex = idx === 0 ? 0 : -1;
+        
         const img = document.createElement('img');
         img.src = `assets/${icon}`;
         img.alt = '';
@@ -461,15 +481,10 @@
         lbl.className = 'emoji-label';
         lbl.innerText = idx+1;
 
-        btn.addEventListener('click', () => {
-          Array.from(ctr.children).forEach((c,i) =>
-            c.classList.toggle('selected', i <= idx)
-          );
-          hidden.value = idx+1;
-        });
+        btn.addEventListener('click', () => select(idx));
         btn.addEventListener('keydown', e => {
           if ((e.key==='Enter'||e.key===' ') && !e.repeat) {
-            btn.click(); e.preventDefault();
+            select(idx); e.preventDefault();
           }
           if (e.key==='ArrowRight' && idx<icons.length-1)
             ctr.children[idx+1].focus();
@@ -479,6 +494,7 @@
 
         btn.append(img, lbl);
         ctr.append(btn);
+        btns.push(btn);
       });
     }
 
@@ -489,8 +505,6 @@
       const sb = form.querySelector('button[type="submit"]');
       sb.disabled = true;
       sb.innerText = 'Submitting…';
-      popup.style.display = 'block';
-      confetti.style.display = 'block';
       const url = '/.netlify/functions/submit-to-smartsheet';
       const formData = {
         lunchDate: form.lunchDate.value,
@@ -513,9 +527,19 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       })
-      .then(res => res.json())
-      .then(json => alert(json.message || json.error))
-      .catch(err => console.error(err))
+      .then(async res => {
+        const data = await res.json();
+        if (res.ok) {
+          popup.style.display = 'block';
+          confetti.style.display = 'block';
+        } else {
+          throw new Error(data.error || 'Submission failed');
+        }
+      })
+      .catch(err => {
+        alert(err.message);
+        console.error(err);
+      })
       .finally(() => {
         isSubmitting = false;
         sb.disabled = false;
