@@ -376,7 +376,7 @@
       🎉 Thank you for submitting!<br/><br/>
       <div class="buttons">
         <button type="button" onclick="reviewAnother()">I’m reviewing another day</button>
-        <button type="button" onclick="closePopup()">Close</button>
+        <button type="button" onclick="closeTab()">Close</button>
       </div>
     </div>
 
@@ -424,6 +424,7 @@
       showPage(0);
     };
     window.reviewAnother = window.closePopup;
+    window.closeTab = () => { closePopup(); window.close(); };
 
     function setWeekLabel() {
       const today = new Date(),
