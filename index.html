@@ -549,9 +549,19 @@
 
     setWeekLabel();
     createRatingBar('tasteRating',       ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'],       'tasteRatingInput');
-    createRatingBar('temperatureRating', ['fire.png','fire.png','fire.png','fire.png','fire.png'],             'temperatureRatingInput');
+    // 🌡️ Updated Temperature Rating Bar
+    createRatingBar(
+      'temperatureRating',
+      ['cold.png','cold.png','scale1.png','fire.png','fire.png'],
+      'temperatureRatingInput'
+    );
     createRatingBar('overallRating',     ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
-    createRatingBar('flowersRating',     ['flower.png','flower.png','flower.png','flower.png','flower.png'],   'flowersRatingInput');
+    // 🌼 Updated Flowers Rating Bar
+    createRatingBar(
+      'flowersRating',
+      ['flowers1.png','flowers2.png','flowers3.png','flowers4.png','flower.png'],
+      'flowersRatingInput'
+    );
 
     // New Reusable Dishware rating bars
     createRatingBar(
