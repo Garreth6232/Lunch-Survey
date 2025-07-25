@@ -27,8 +27,8 @@ exports.handler = async (event) => {
     return { statusCode: 200, body: 'OK' };
   }
 
-  const { FgcHzBPcLWGhME1FvvM0wNIeGNIlUSUml4p4J, P6MM7jFQf8VjF5rm4jv5fGvCmRqFcMg4JcM9pwm } = process.env;
-  if (!FgcHzBPcLWGhME1FvvM0wNIeGNIlUSUml4p4J || !P6MM7jFQf8VjF5rm4jv5fGvCmRqFcMg4JcM9pwm) {
+  const { SMARTSHEET_API_TOKEN, SMARTSHEET_SHEET_ID } = process.env;
+  if (!SMARTSHEET_API_TOKEN || !SMARTSHEET_SHEET_ID) {
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Missing Smartsheet credentials' })
@@ -38,28 +38,7 @@ exports.handler = async (event) => {
   try {
     const b = JSON.parse(event.body);
 
-    // 1️⃣ Quickly search sheet for an existing row with this lunch date
-    const searchRes = await axios.get(
-      `https://api.smartsheet.com/2.0/search/sheets/${P6MM7jFQf8VjF5rm4jv5fGvCmRqFcMg4JcM9pwm}`,
-      {
-        headers: { Authorization: `Bearer ${FgcHzBPcLWGhME1FvvM0wNIeGNIlUSUml4p4J}` },
-        params: { query: b.lunchDate }
-      }
-    );
-
-    const already = (searchRes.data.results || []).some(r =>
-      r.objectType === 'CELL' &&
-      r.columnId === COL_LUNCH_DATE &&
-      String(r.text || r.objectValue) === b.lunchDate
-    );
-    if (already) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: 'Already submitted for that date' })
-      };
-    }
-
-    // 2️⃣ Build cells array
+    // 1️⃣ Build cells array
     const cells = [
       { columnId: COL_LUNCH_DATE,        value: b.lunchDate },
       { columnId: COL_TASTE,             value: b.tasteRating },
@@ -80,9 +59,9 @@ exports.handler = async (event) => {
       { columnId: COL_EXPECTATIONS,      value: b.expectations }
     ];
 
-    // 3️⃣ Post new row to Smartsheet
+    // 2️⃣ Post new row to Smartsheet
     await axios.post(
-      `https://api.smartsheet.com/2.0/sheets/${P6MM7jFQf8VjF5rm4jv5fGvCmRqFcMg4JcM9pwm}/rows`,
+      `https://api.smartsheet.com/2.0/sheets/${SMARTSHEET_SHEET_ID}/rows`,
       [{ toTop: true, cells }],
       {
         headers: {
