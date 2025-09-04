@@ -213,6 +213,12 @@
       object-fit: cover; opacity: 0.6;
       pointer-events: none; z-index: 9999;
     }
+    #reuse-optin-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+    }
 
     @media (max-width: 600px) {
       header.survey-title-box,
@@ -272,6 +278,14 @@
           <div class="emoji-bar" id="flowersRating" role="radiogroup" aria-labelledby="flowersLegend"></div>
           <input type="hidden" id="flowersRatingInput" name="flowersRating" data-label="Flowers for the Chefs" required>
         </fieldset>
+        <!-- ReUse Dishware Program opt-in -->
+        <div class="form-row" id="reuse-optin-row" style="margin-top: 1rem;">
+          <input type="checkbox" id="reuseOptIn" checked />
+          <label for="reuseOptIn">Would you like to review our ReUse Dishware Program?</label>
+        </div>
+
+        <!-- Hidden field to capture choice for submissions -->
+        <input type="hidden" name="reuseDishwareOptIn" id="reuseDishwareOptInHidden" value="true" />
         <div class="buttons">
           <button type="button" onclick="prevPage()">Back</button>
           <button type="button" onclick="nextPage()">Continue</button>
@@ -417,9 +431,25 @@
       }
       for (const f of pages[currentPage].querySelectorAll('input:not([type="hidden"]),textarea'))
         if (!f.checkValidity()) { f.reportValidity(); return; }
+      if (currentPage === 1) {
+        const reuseOptInEl = document.getElementById('reuseOptIn');
+        const reuseChecked = !!(reuseOptInEl && reuseOptInEl.checked);
+        const hidden = document.getElementById('reuseDishwareOptInHidden');
+        if (hidden) hidden.value = reuseChecked ? 'true' : 'false';
+        showPage(reuseChecked ? 2 : 3);
+        return;
+      }
       if (currentPage < pages.length - 1) showPage(currentPage + 1);
     };
-    window.prevPage = () => { if (!isSubmitting && currentPage > 0) showPage(currentPage - 1); };
+    window.prevPage = () => {
+      if (isSubmitting || currentPage === 0) return;
+      const hidden = document.getElementById('reuseDishwareOptInHidden');
+      if (currentPage === 3 && hidden && hidden.value === 'false') {
+        showPage(1);
+      } else {
+        showPage(currentPage - 1);
+      }
+    };
 
     window.closePopup = () => {
       popup.style.display = 'none';
@@ -512,16 +542,20 @@
         temperatureRating: +form.temperatureRating.value,
         overallRating: +form.overallRating.value,
         flowersRating: +form.flowersRating.value,
-        impactDishRating: +form.impactDishRating.value,
-        // Reuse the Overall-Experience emoji set here:
-        dishSatisfactionRating: +form.dishSatisfactionRating.value,
-        dishQualityRating: +form.dishQualityRating.value,
-        dishConvenienceRating: +form.dishConvenienceRating.value,
-        dishFutureRating: +form.dishFutureRating.value,
-        dishChallenges: form.dishChallenges.value,
         memorable: form.memorable.value,
         expectations: form.expectations.value
       };
+      if (form.reuseDishwareOptInHidden.value === 'true') {
+        Object.assign(formData, {
+          impactDishRating: +form.impactDishRating.value,
+          // Reuse the Overall-Experience emoji set here:
+          dishSatisfactionRating: +form.dishSatisfactionRating.value,
+          dishQualityRating: +form.dishQualityRating.value,
+          dishConvenienceRating: +form.dishConvenienceRating.value,
+          dishFutureRating: +form.dishFutureRating.value,
+          dishChallenges: form.dishChallenges.value
+        });
+      }
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
