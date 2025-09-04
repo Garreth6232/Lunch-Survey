@@ -536,6 +536,7 @@
       sb.disabled = true;
       sb.innerText = 'Submitting…';
       const url = '/.netlify/functions/submit-to-smartsheet';
+      const optedIn = form.reuseDishwareOptInHidden.value === 'true';
       const formData = {
         lunchDate: form.lunchDate.value,
         tasteRating: +form.tasteRating.value,
@@ -543,19 +544,15 @@
         overallRating: +form.overallRating.value,
         flowersRating: +form.flowersRating.value,
         memorable: form.memorable.value,
-        expectations: form.expectations.value
+        expectations: form.expectations.value,
+        impactDishRating: optedIn ? +form.impactDishRating.value : null,
+        // Reuse the Overall-Experience emoji set here:
+        dishSatisfactionRating: optedIn ? +form.dishSatisfactionRating.value : null,
+        dishQualityRating: optedIn ? +form.dishQualityRating.value : null,
+        dishConvenienceRating: optedIn ? +form.dishConvenienceRating.value : null,
+        dishFutureRating: optedIn ? +form.dishFutureRating.value : null,
+        dishChallenges: optedIn ? form.dishChallenges.value : null
       };
-      if (form.reuseDishwareOptInHidden.value === 'true') {
-        Object.assign(formData, {
-          impactDishRating: +form.impactDishRating.value,
-          // Reuse the Overall-Experience emoji set here:
-          dishSatisfactionRating: +form.dishSatisfactionRating.value,
-          dishQualityRating: +form.dishQualityRating.value,
-          dishConvenienceRating: +form.dishConvenienceRating.value,
-          dishFutureRating: +form.dishFutureRating.value,
-          dishChallenges: form.dishChallenges.value
-        });
-      }
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
