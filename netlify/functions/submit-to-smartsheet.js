@@ -36,21 +36,21 @@ exports.handler = async (event) => {
   try {
     const b = JSON.parse(event.body);
 
-    const cells = [
-      { columnId: COL_LUNCH_DATE,        value: b.lunchDate },
-      { columnId: COL_TASTE,             value: b.tasteRating },
-      { columnId: COL_TEMPERATURE,       value: b.temperatureRating },
-      { columnId: COL_OVERALL,           value: b.overallRating },
-      { columnId: COL_FLOWERS,           value: b.flowersRating },
-      { columnId: COL_IMPACT_DISH,       value: b.impactDishRating },
-      { columnId: COL_DISH_SATISFACTION, value: b.dishSatisfactionRating },
-      { columnId: COL_DISH_QUALITY,      value: b.dishQualityRating },
-      { columnId: COL_DISH_CONVENIENCE,  value: b.dishConvenienceRating },
-      { columnId: COL_DISH_FUTURE,       value: b.dishFutureRating },
-      { columnId: COL_DISH_CHALLENGES,   value: b.dishChallenges },
-      { columnId: COL_MEMORABLE,         value: b.memorable },
-      { columnId: COL_EXPECTATIONS,      value: b.expectations }
-    ];
+      const cells = [
+        { columnId: COL_LUNCH_DATE,        value: b.lunchDate ?? null },
+        { columnId: COL_TASTE,             value: b.tasteRating ?? null },
+        { columnId: COL_TEMPERATURE,       value: b.temperatureRating ?? null },
+        { columnId: COL_OVERALL,           value: b.overallRating ?? null },
+        { columnId: COL_FLOWERS,           value: b.flowersRating ?? null },
+        { columnId: COL_IMPACT_DISH,       value: b.impactDishRating ?? null },
+        { columnId: COL_DISH_SATISFACTION, value: b.dishSatisfactionRating ?? null },
+        { columnId: COL_DISH_QUALITY,      value: b.dishQualityRating ?? null },
+        { columnId: COL_DISH_CONVENIENCE,  value: b.dishConvenienceRating ?? null },
+        { columnId: COL_DISH_FUTURE,       value: b.dishFutureRating ?? null },
+        { columnId: COL_DISH_CHALLENGES,   value: b.dishChallenges ?? null },
+        { columnId: COL_MEMORABLE,         value: b.memorable ?? null },
+        { columnId: COL_EXPECTATIONS,      value: b.expectations ?? null }
+      ];
 
     const response = await axios.post(
       `https://api.smartsheet.com/2.0/sheets/${SMARTSHEET_SHEET_ID}/rows`,
