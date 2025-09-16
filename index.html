@@ -436,6 +436,20 @@
         const reuseChecked = !!(reuseOptInEl && reuseOptInEl.checked);
         const hidden = document.getElementById('reuseDishwareOptInHidden');
         if (hidden) hidden.value = reuseChecked ? 'true' : 'false';
+        if (!reuseChecked) {
+          const defaults = [
+            ['impactDishRatingInput', '0'],
+            ['dishSatisfactionRatingInput', '0'],
+            ['dishQualityRatingInput', '0'],
+            ['dishConvenienceRatingInput', '0'],
+            ['dishFutureRatingInput', '0'],
+            ['dishChallenges', 'N/A']
+          ];
+          for (const [id, value] of defaults) {
+            const el = document.getElementById(id);
+            if (el) el.value = value;
+          }
+        }
         showPage(reuseChecked ? 2 : 3);
         return;
       }
