@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="Share feedback on campus lunches" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; connect-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self';"/>
+  <meta name="referrer" content="same-origin" />
   <title>Campus Lunch Survey</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -252,7 +255,7 @@
         <label for="lunchDate">What day are you reviewing?</label>
         <input type="date" id="lunchDate" name="lunchDate" required>
         <div class="buttons">
-          <button type="button" onclick="nextPage()">Continue</button>
+          <button type="button" data-action="next-page">Continue</button>
         </div>
       </section>
 
@@ -287,8 +290,8 @@
         <!-- Hidden field to capture choice for submissions -->
         <input type="hidden" name="reuseDishwareOptIn" id="reuseDishwareOptInHidden" value="true" />
         <div class="buttons">
-          <button type="button" onclick="prevPage()">Back</button>
-          <button type="button" onclick="nextPage()">Continue</button>
+          <button type="button" data-action="prev-page">Back</button>
+          <button type="button" data-action="next-page">Continue</button>
         </div>
       </section>
 
@@ -365,8 +368,8 @@
         <textarea id="dishChallenges" name="dishChallenges" required></textarea>
 
         <div class="buttons">
-          <button type="button" onclick="prevPage()">Back</button>
-          <button type="button" onclick="nextPage()">Continue</button>
+          <button type="button" data-action="prev-page">Back</button>
+          <button type="button" data-action="next-page">Continue</button>
         </div>
       </section>
 
@@ -379,7 +382,7 @@
         <textarea id="expectations" name="expectations" required></textarea>
 
         <div class="buttons">
-          <button type="button" onclick="prevPage()">Back</button>
+          <button type="button" data-action="prev-page">Back</button>
           <button type="submit">Submit</button>
         </div>
       </section>
@@ -389,8 +392,8 @@
     <div id="popup">
       🎉 Thank you for submitting!<br/><br/>
       <div class="buttons">
-        <button type="button" onclick="reviewAnother()">I’m reviewing another day</button>
-        <button type="button" onclick="closeTab()">Close</button>
+        <button type="button" data-action="review-another">I’m reviewing another day</button>
+        <button type="button" data-action="close-tab">Close</button>
       </div>
     </div>
 
@@ -400,245 +403,7 @@
     </video>
   </main>
 
-  <script>
-  (function(){
-    'use strict';
-    const form      = document.getElementById('multiPageForm'),
-          dateInput = document.getElementById('lunchDate'),
-          pages     = document.querySelectorAll('.page'),
-          popup     = document.getElementById('popup'),
-          confetti  = document.getElementById('confettiVideo');
-    let currentPage = 0;
-    let isSubmitting = false;
-
-    function showPage(i) {
-      pages.forEach((p, idx) => p.classList.toggle('active', idx === i));
-      currentPage = i;
-      const first = pages[i].querySelector('input, textarea, button');
-      if (i === 0) {
-        dateInput.showPicker?.();
-        dateInput.focus();
-      } else if (first) {
-        first.focus();
-      }
-    }
-
-    window.nextPage = () => {
-      if (isSubmitting) return;
-      if (currentPage === 1 || currentPage === 2) {
-        for (const hi of pages[currentPage].querySelectorAll('input[type="hidden"]'))
-          if (!hi.value) return alert(`Please select a rating for ${hi.dataset.label}.`);
-      }
-      for (const f of pages[currentPage].querySelectorAll('input:not([type="hidden"]),textarea'))
-        if (!f.checkValidity()) { f.reportValidity(); return; }
-      if (currentPage === 1) {
-        const reuseOptInEl = document.getElementById('reuseOptIn');
-        const reuseChecked = !!(reuseOptInEl && reuseOptInEl.checked);
-        const hidden = document.getElementById('reuseDishwareOptInHidden');
-        if (hidden) hidden.value = reuseChecked ? 'true' : 'false';
-        if (!reuseChecked) {
-          const defaults = [
-            ['impactDishRatingInput', '0'],
-            ['dishSatisfactionRatingInput', '0'],
-            ['dishQualityRatingInput', '0'],
-            ['dishConvenienceRatingInput', '0'],
-            ['dishFutureRatingInput', '0'],
-            ['dishChallenges', 'N/A']
-          ];
-          for (const [id, value] of defaults) {
-            const el = document.getElementById(id);
-            if (el) el.value = value;
-          }
-        }
-        showPage(reuseChecked ? 2 : 3);
-        return;
-      }
-      if (currentPage < pages.length - 1) showPage(currentPage + 1);
-    };
-    window.prevPage = () => {
-      if (isSubmitting || currentPage === 0) return;
-      const hidden = document.getElementById('reuseDishwareOptInHidden');
-      if (currentPage === 3 && hidden && hidden.value === 'false') {
-        showPage(1);
-      } else {
-        showPage(currentPage - 1);
-      }
-    };
-
-    window.closePopup = () => {
-      popup.style.display = 'none';
-      confetti.pause();
-      confetti.currentTime = 0;
-      confetti.style.display = 'none';
-      form.reset();
-      setWeekLabel();
-      showPage(0);
-    };
-    window.reviewAnother = window.closePopup;
-    window.closeTab = () => { closePopup(); window.close(); };
-
-    function setWeekLabel() {
-      const today = new Date(),
-            d = today.getDay(),
-            diff = d < 2 ? d + 5 : d - 2;
-      const t = new Date(today.getTime());
-      t.setDate(t.getDate() - diff);
-      const th = new Date(t.getTime());
-      th.setDate(th.getDate() + 2);
-      const fmt = dt => dt.toLocaleDateString(undefined, { month:'numeric', day:'numeric' });
-      dateInput.min = t.toISOString().slice(0,10);
-      dateInput.max = th.toISOString().slice(0,10);
-      document.getElementById('surveyWeek').innerText =
-        `Campus Lunch Survey ${fmt(t)}–${fmt(th)}`;
-    }
-
-    function createRatingBar(barId, icons, hid) {
-      const ctr = document.getElementById(barId),
-            hidden = document.getElementById(hid);
-      ctr.innerHTML = '';
-      ctr.setAttribute('role', 'radiogroup');
-      ctr.setAttribute('aria-label', hidden.dataset.label);
-      const btns = [];
-      const select = idx => {
-        btns.forEach((b,i) => {
-          b.classList.toggle('selected', i <= idx);
-          b.setAttribute('aria-checked', i === idx ? 'true' : 'false');
-          b.tabIndex = i === idx ? 0 : -1;
-        });
-        hidden.value = idx + 1;
-      };
-      icons.forEach((icon, idx) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'emoji-container';
-        btn.setAttribute('aria-label', `${hidden.dataset.label} ${idx+1}`);
-        btn.setAttribute('role', 'radio');
-        btn.setAttribute('aria-checked', 'false');
-        btn.tabIndex = idx === 0 ? 0 : -1;
-        
-        const img = document.createElement('img');
-        img.src = `assets/${icon}`;
-        img.alt = '';
-        img.loading = 'lazy';
-
-        const lbl = document.createElement('div');
-        lbl.className = 'emoji-label';
-        lbl.innerText = idx+1;
-
-        btn.addEventListener('click', () => select(idx));
-        btn.addEventListener('keydown', e => {
-          if ((e.key==='Enter'||e.key===' ') && !e.repeat) {
-            select(idx); e.preventDefault();
-          }
-          if (e.key==='ArrowRight' && idx<icons.length-1)
-            ctr.children[idx+1].focus();
-          if (e.key==='ArrowLeft' && idx>0)
-            ctr.children[idx-1].focus();
-        });
-
-        btn.append(img, lbl);
-        ctr.append(btn);
-        btns.push(btn);
-      });
-    }
-
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      if (isSubmitting) return;
-      isSubmitting = true;
-      const sb = form.querySelector('button[type="submit"]');
-      sb.disabled = true;
-      sb.innerText = 'Submitting…';
-      const url = '/.netlify/functions/submit-to-smartsheet';
-      const optedIn = form.reuseDishwareOptInHidden.value === 'true';
-      const formData = {
-        lunchDate: form.lunchDate.value,
-        tasteRating: +form.tasteRating.value,
-        temperatureRating: +form.temperatureRating.value,
-        overallRating: +form.overallRating.value,
-        flowersRating: +form.flowersRating.value,
-        memorable: form.memorable.value,
-        expectations: form.expectations.value,
-        impactDishRating: optedIn ? +form.impactDishRating.value : null,
-        // Reuse the Overall-Experience emoji set here:
-        dishSatisfactionRating: optedIn ? +form.dishSatisfactionRating.value : null,
-        dishQualityRating: optedIn ? +form.dishQualityRating.value : null,
-        dishConvenienceRating: optedIn ? +form.dishConvenienceRating.value : null,
-        dishFutureRating: optedIn ? +form.dishFutureRating.value : null,
-        dishChallenges: optedIn ? form.dishChallenges.value : null
-      };
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-      .then(async res => {
-        const data = await res.json();
-        if (res.ok) {
-          popup.style.display = 'block';
-          confetti.style.display = 'block';
-        } else {
-          throw new Error(data.error || 'Submission failed');
-        }
-      })
-      .catch(err => {
-        alert(err.message);
-        console.error(err);
-      })
-      .finally(() => {
-        isSubmitting = false;
-        sb.disabled = false;
-        sb.innerText = 'Submit';
-      });
-    });
-
-    setWeekLabel();
-    createRatingBar('tasteRating',       ['hotdog.png','hotdog.png','hotdog.png','hotdog.png','hotdog.png'],       'tasteRatingInput');
-    // 🌡️ Updated Temperature Rating Bar
-    createRatingBar(
-      'temperatureRating',
-      ['cold.png','cold.png','scale1.png','fire.png','fire.png'],
-      'temperatureRatingInput'
-    );
-    createRatingBar('overallRating',     ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'], 'overallRatingInput');
-    // 🌼 Updated Flowers Rating Bar
-    createRatingBar(
-      'flowersRating',
-      ['flowers1.png','flowers2.png','flowers3.png','flowers4.png','flower.png'],
-      'flowersRatingInput'
-    );
-
-    // New Reusable Dishware rating bars
-    createRatingBar(
-      'impactDishRating',
-      ['placeholder-impact.png','placeholder-impact.png','placeholder-impact.png','placeholder-impact.png','placeholder-impact.png'],
-      'impactDishRatingInput'
-    );
-    // <-- Reworked to use the same 5 emojis as Overall Experience -->
-    createRatingBar(
-      'dishSatisfactionRating',
-      ['frown2.png','frown1.png','neutral.png','smile1.png','smile2.png'],
-      'dishSatisfactionRatingInput'
-    );
-    createRatingBar(
-      'dishQualityRating',
-      ['placeholder-quality.png','placeholder-quality.png','placeholder-quality.png','placeholder-quality.png','placeholder-quality.png'],
-      'dishQualityRatingInput'
-    );
-    createRatingBar(
-      'dishConvenienceRating',
-      ['placeholder-convenience.png','placeholder-convenience.png','placeholder-convenience.png','placeholder-convenience.png','placeholder-convenience.png'],
-      'dishConvenienceRatingInput'
-    );
-    createRatingBar(
-      'dishFutureRating',
-      ['placeholder-future.png','placeholder-future.png','placeholder-future.png','placeholder-future.png','placeholder-future.png'],
-      'dishFutureRatingInput'
-    );
-
-    showPage(0);
-  })();
-  </script>
+  <script src="assets/js/app.js" defer></script>
 </body>
 </html>
 
